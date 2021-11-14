@@ -1,4 +1,4 @@
-package com.edumy.plugins
+package com.edumy.base
 
 import io.ktor.application.*
 import io.ktor.features.*
