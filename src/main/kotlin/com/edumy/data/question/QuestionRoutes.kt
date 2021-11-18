@@ -1,6 +1,7 @@
 package com.edumy.data.question
 
 import com.edumy.data.answer.Answer
+import com.edumy.util.DateSerializer
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.http.content.*
@@ -32,6 +33,7 @@ fun Application.questionRoutes(database: CoroutineDatabase) {
                             "userId" -> question.userId = part.value
                             "lesson" -> question.lesson = part.value
                             "question" -> question.question = part.value
+                            "date" -> question.date = DateSerializer.parse(part.value)
                         }
                     }
                     is PartData.FileItem -> {

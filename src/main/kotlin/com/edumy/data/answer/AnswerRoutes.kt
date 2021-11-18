@@ -1,5 +1,6 @@
 package com.edumy.data.answer
 
+import com.edumy.util.DateSerializer
 import com.edumy.util.FileType
 import com.edumy.util.FileType.Companion.fileType
 import com.edumy.util.FileType.Companion.path
@@ -32,6 +33,7 @@ fun Application.answerRoutes(database: CoroutineDatabase) {
                         when (part.name) {
                             "questionId" -> answer.questionId = part.value
                             "userId" -> answer.userId = part.value
+                            "date" -> answer.date = DateSerializer.parse(part.value)
                         }
                     }
                     is PartData.FileItem -> {
