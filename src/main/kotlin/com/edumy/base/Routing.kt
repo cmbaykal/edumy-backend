@@ -48,7 +48,7 @@ fun Application.configureRouting() {
     }
 
     val client = KMongo.createClient().coroutine
-    val database = client.getDatabase("users")
+    val database = client.getDatabase("EdumyDB")
 
     baseRoutes()
     userRoutes(database)

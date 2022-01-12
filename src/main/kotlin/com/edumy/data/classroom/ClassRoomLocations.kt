@@ -5,10 +5,10 @@ import io.ktor.locations.*
 @Location("/class/add")
 class AddClass
 
-@Location("/class/{classId}/assign")
+@Location("/class/assign")
 data class AssignUser(val classId: String, val userId: String)
 
-@Location("/class/{classId}/leave")
+@Location("/class/leave")
 data class LeaveClass(val classId: String, val userId: String)
 
 @Location("/class/info")

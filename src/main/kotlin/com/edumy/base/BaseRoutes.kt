@@ -11,6 +11,10 @@ fun Application.baseRoutes() {
 
     routing {
 
+        get {
+            call.respond("Hello Baykal")
+        }
+
         get<DownloadImage> { request ->
             val file = File("uploads/image/${request.fileName}")
             if (file.exists()) {

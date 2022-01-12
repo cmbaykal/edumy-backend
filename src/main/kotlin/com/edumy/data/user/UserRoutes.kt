@@ -1,5 +1,6 @@
 package com.edumy.data.user
 
+import com.edumy.base.BaseResponse
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.locations.*
@@ -18,13 +19,15 @@ fun Application.userRoutes(database: CoroutineDatabase) {
     routing {
 
         post<RegisterUser> {
-            val requestBody = call.receive<User>()
+             val requestBody = call.receive<User>()
 
-            if (users.insertOne(requestBody).wasAcknowledged()) {
-                call.respond(HttpStatusCode.OK)
-            } else {
-                call.respond(HttpStatusCode.InternalServerError)
-            }
+                if (users.insertOne(requestBody).wasAcknowledged()) {
+                    call.response.status(HttpStatusCode.OK)
+                    call.respond(BaseResponse.success(requestBody))
+                } else {
+                    call.response.status(HttpStatusCode.InternalServerError)
+                    call.respond(BaseResponse.error())
+                }
         }
 
         post<LoginUser> {

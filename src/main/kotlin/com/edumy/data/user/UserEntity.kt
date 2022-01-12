@@ -17,6 +17,7 @@ data class User(
     @SerialName("mail")
     val mail: String? = null,
     @Transient
+    @SerialName("pass")
     val pass: String? = null,
     @Serializable(with = DateSerializer::class)
     @SerialName("birth")

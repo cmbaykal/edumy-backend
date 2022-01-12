@@ -6,7 +6,7 @@ import io.ktor.locations.*
 class RegisterUser
 
 @Location("/user/login")
-class LoginUser()
+class LoginUser
 
 @Location("/user/update")
 data class UpdateUser(val userId:String)
@@ -18,5 +18,5 @@ data class UserInfo(val userId: String)
 data class DeleteUser(val userId:String)
 
 @Location("/user/all")
-class AllUsers()
+class AllUsers
 
