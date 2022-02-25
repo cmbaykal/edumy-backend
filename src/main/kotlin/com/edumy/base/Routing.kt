@@ -1,11 +1,6 @@
 package com.edumy.base
 
-import com.edumy.data.answer.answerRoutes
-import com.edumy.data.classroom.classRoutes
-import com.edumy.data.performance.performanceRoutes
-import com.edumy.data.question.questionRoutes
-import com.edumy.data.usage.usageRoutes
-import com.edumy.data.user.userRoutes
+import com.edumy.routing.*
 import io.ktor.application.*
 import io.ktor.features.*
 import io.ktor.locations.*
@@ -13,12 +8,11 @@ import io.ktor.routing.*
 import io.ktor.serialization.*
 import io.ktor.util.*
 import kotlinx.serialization.json.Json
-import org.litote.kmongo.coroutine.coroutine
-import org.litote.kmongo.reactivestreams.KMongo
+import org.litote.kmongo.coroutine.CoroutineDatabase
 import java.text.SimpleDateFormat
 import java.util.*
 
-fun Application.configureRouting() {
+fun Application.configureRouting(database: CoroutineDatabase) {
     install(Locations)
     install(Routing)
     install(ContentNegotiation) {
@@ -28,16 +22,16 @@ fun Application.configureRouting() {
             ignoreUnknownKeys = true
         })
     }
-    
+
     install(DataConversion) {
-        convert<Date> { // this: DelegatingConversionService
+        convert<Date> {
             val format = SimpleDateFormat("dd.mm.yyyy HH.mm.ss")
 
-            decode { values, _ -> // converter: (values: List<String>, type: Type) -> Any?
+            decode { values, _ ->
                 values.singleOrNull()?.let { format.parse(it) }
             }
 
-            encode { value -> // converter: (value: Any?) -> List<String>
+            encode { value -> //
                 when (value) {
                     null -> listOf()
                     is Date -> listOf(SimpleDateFormat.getInstance().format(value))
@@ -46,9 +40,6 @@ fun Application.configureRouting() {
             }
         }
     }
-
-    val client = KMongo.createClient().coroutine
-    val database = client.getDatabase("EdumyDB")
 
     baseRoutes()
     userRoutes(database)

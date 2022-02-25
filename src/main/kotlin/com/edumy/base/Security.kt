@@ -1,31 +1,47 @@
 package com.edumy.base
 
+import com.auth0.jwt.JWT
+import com.auth0.jwt.JWTVerifier
+import com.auth0.jwt.algorithms.Algorithm
+import com.edumy.data.user.User
+import com.edumy.data.user.UserEntity
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.auth.jwt.*
+import java.util.*
 
 fun Application.configureSecurity() {
-
-//    val issuer: String = stringProperty("jwt.issuer")
-//    val algorithm = Algorithm.HMAC256(stringProperty("jwt.access.secret"))
-//
-//    val accessLifetime = longProperty("jwt.access.lifetime")    // minutes
-//    val refreshLifetime = longProperty("jwt.refresh.lifetime")  // days
+    val appRealm = environment.config.property("jwt.realm").getString()
 
     install(Authentication) {
-        jwt("access") {
-//            verifier {
-//              makeJWTVerifier(algorithm, issuer)
-//            }
-
-            validate { token ->
-                if (token.payload.expiresAt.time > System.currentTimeMillis())
-                    JWTPrincipal(token.payload)
-                else null
+        jwt {
+            verifier(JWTConfig.verifier)
+            realm = appRealm
+            validate { credentials ->
+                JWTPrincipal(credentials.payload)
             }
         }
     }
+}
 
+object JWTConfig {
+    private const val secretValue = "LocalSecret"
+    private const val issuerValue = "ktor.io"
+    private const val expireInterval = 36_000_00 // 1 Hour
+    private val algorithm = Algorithm.HMAC512(secretValue)
 
+    val verifier: JWTVerifier = JWT
+        .require(algorithm)
+        .withIssuer(issuerValue)
+        .build()
 
+    val expireTime get() = Date(System.currentTimeMillis() + expireInterval)
+
+    fun generateToken(user: UserEntity): String = JWT.create()
+        .withSubject("Authentication")
+        .withIssuer(issuerValue)
+        .withClaim("userId", user.id)
+        .withClaim("email", user.mail)
+        .withExpiresAt(expireTime)
+        .sign(algorithm)
 }

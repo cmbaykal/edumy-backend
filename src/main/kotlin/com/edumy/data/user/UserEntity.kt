@@ -9,16 +9,13 @@ import org.bson.types.ObjectId
 import java.util.*
 
 @Serializable
-data class User(
+open class User(
     @BsonId
     val id: String = ObjectId().toString(),
     @SerialName("role")
     val role: String? = null,
     @SerialName("mail")
     val mail: String? = null,
-    @Transient
-    @SerialName("pass")
-    val pass: String? = null,
     @Serializable(with = DateSerializer::class)
     @SerialName("birth")
     val birth: Date? = null,
@@ -27,6 +24,12 @@ data class User(
     @SerialName("bio")
     val bio: String? = null,
 )
+
+@Serializable
+data class UserEntity(
+    @SerialName("pass")
+    val pass: String
+) : User()
 
 @Serializable
 data class UserCredentials(
