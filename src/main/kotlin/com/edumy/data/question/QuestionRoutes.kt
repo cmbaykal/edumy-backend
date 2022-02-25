@@ -1,5 +1,6 @@
 package com.edumy.data.question
 
+import com.edumy.base.BaseResponse
 import com.edumy.data.answer.Answer
 import com.edumy.util.DateSerializer
 import io.ktor.application.*
@@ -20,7 +21,6 @@ fun Application.questionRoutes(database: CoroutineDatabase) {
     val questions = database.getCollection<Question>()
 
     routing {
-
         post<AddQuestion> {
             val multipartData = call.receiveMultipart()
             val question = Question()
@@ -44,14 +44,16 @@ fun Application.questionRoutes(database: CoroutineDatabase) {
 
                         question.image = "http://0.0.0.0:8080/image/$fileName"
                     }
+                    is PartData.BinaryItem -> TODO()
                 }
             }
 
             if (questions.insertOne(question).wasAcknowledged()) {
                 call.response.status(HttpStatusCode.OK)
-                call.respond(question)
+                call.respond(BaseResponse.success(question))
             } else {
                 call.response.status(HttpStatusCode.InternalServerError)
+                call.respond(BaseResponse.error())
             }
         }
 
@@ -67,31 +69,58 @@ fun Application.questionRoutes(database: CoroutineDatabase) {
                 }
 
                 if (questions.deleteOneById(request.questionId).wasAcknowledged()) {
-                    call.respond(HttpStatusCode.OK)
+                    call.response.status(HttpStatusCode.OK)
+                    call.respond(BaseResponse.ok())
                 } else {
-                    call.respond(HttpStatusCode.InternalServerError)
+                    call.response.status(HttpStatusCode.InternalServerError)
+                    call.respond(BaseResponse.error())
                 }
             } else {
                 call.respond(HttpStatusCode.BadRequest)
+                call.respond(BaseResponse.error())
             }
         }
 
         get<AllQuestions> {
-            call.respond(questions.find().toList())
+            try {
+                call.respond(questions.find().toList())
+            } catch (e: Exception) {
+                call.respond(HttpStatusCode.BadRequest)
+                call.respond(BaseResponse.error(e.message))
+            }
         }
 
         get<QuestionInfo> { request ->
-            call.respond(questions.find(Question::id eq request.questionId).toList())
+            try {
+                val foundQuestions = questions.find(Question::id eq request.questionId).toList()
+                call.response.status(HttpStatusCode.OK)
+                call.respond(BaseResponse.success(foundQuestions))
+            } catch (e: Exception) {
+                call.respond(HttpStatusCode.BadRequest)
+                call.respond(BaseResponse.error(e.message))
+            }
         }
 
         get<ClassQuestions> { request ->
-            call.respond(questions.find(Question::classId eq request.classId).toList())
+            try {
+                val foundQuestions = questions.find(Question::classId eq request.classId).toList()
+                call.response.status(HttpStatusCode.OK)
+                call.respond(BaseResponse.success(foundQuestions))
+            } catch (e: Exception) {
+                call.respond(HttpStatusCode.BadRequest)
+                call.respond(BaseResponse.error(e.message))
+            }
         }
 
         get<UserQuestions> { request ->
-            call.respond(questions.find(Question::userId eq request.userId).toList())
+            try {
+                val foundQuestions = questions.find(Question::userId eq request.userId).toList()
+                call.response.status(HttpStatusCode.OK)
+                call.respond(BaseResponse.success(foundQuestions))
+            } catch (e: Exception) {
+                call.respond(HttpStatusCode.BadRequest)
+                call.respond(BaseResponse.error(e.message))
+            }
         }
-
     }
-
 }

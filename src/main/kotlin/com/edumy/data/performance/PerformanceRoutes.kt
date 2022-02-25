@@ -1,5 +1,6 @@
 package com.edumy.data.performance
 
+import com.edumy.base.BaseResponse
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.locations.*
@@ -21,28 +22,43 @@ fun Application.performanceRoutes(database: CoroutineDatabase) {
 
             if (performances.insertOne(performance).wasAcknowledged()) {
                 call.response.status(HttpStatusCode.OK)
-                call.respond(performance)
+                call.respond(BaseResponse.success(performance))
             } else {
-                call.respond(HttpStatusCode.InternalServerError)
+                call.response.status(HttpStatusCode.InternalServerError)
+                call.respond(BaseResponse.error())
             }
         }
 
         post<DeletePerformance> { request ->
             if (performances.deleteOne(Performance::id eq request.performanceId).wasAcknowledged()) {
-                call.respond(HttpStatusCode.OK)
+                call.response.status(HttpStatusCode.OK)
+                call.respond(BaseResponse.ok())
             } else {
-                call.respond(HttpStatusCode.InternalServerError)
+                call.response.status(HttpStatusCode.InternalServerError)
+                call.respond(BaseResponse.error())
             }
         }
 
         get<UserPerformances> { request ->
-            call.respond(performances.find(Performance::userId eq request.userId).toList())
+            try {
+                val foundPerformances = performances.find(Performance::userId eq request.userId).toList()
+                call.response.status(HttpStatusCode.OK)
+                call.respond(BaseResponse.success(foundPerformances))
+            } catch (e: Exception) {
+                call.response.status(HttpStatusCode.InternalServerError)
+                call.respond(BaseResponse.error(e.message))
+            }
         }
 
         get<AllPerformances> {
-            call.respond(performances.find().toList())
+            try {
+                val foundPerformances = performances.find().toList()
+                call.response.status(HttpStatusCode.OK)
+                call.respond(BaseResponse.success(foundPerformances))
+            } catch (e: Exception) {
+                call.response.status(HttpStatusCode.InternalServerError)
+                call.respond(BaseResponse.error(e.message))
+            }
         }
-
     }
-
 }

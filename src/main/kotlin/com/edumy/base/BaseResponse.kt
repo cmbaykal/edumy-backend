@@ -4,16 +4,19 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class BaseResponse<T>(
+open class BaseResult(
     @SerialName("dialog")
-    val dialog: EdumyDialog? = null,
+    var dialog: EdumyDialog? = null,
 
     @SerialName("result")
     var result: EdumyResult? = null,
+)
 
+@Serializable
+data class BaseResponse<T>(
     @SerialName("data")
     var data: T? = null
-) {
+) : BaseResult() {
     companion object {
         fun <T> success(data: T? = null): BaseResponse<T> {
             val response = BaseResponse<T>()
@@ -22,10 +25,19 @@ data class BaseResponse<T>(
             return response
         }
 
-        fun error(message: String? = null): BaseResponse<Nothing> {
-            val response = BaseResponse<Nothing>()
+        fun ok(): BaseResult {
+            val response = BaseResult()
+            response.result = EdumyResult(success = true)
+            return response
+        }
+
+        fun error(message: String? = null, dialog: EdumyDialog? = null): BaseResult {
+            val response = BaseResult()
             val error = message ?: "Oops, an error occurred. Please try again."
-            response.result = EdumyResult(error = error, success = false)
+            response.result = EdumyResult(message = error, success = false)
+            dialog?.let {
+                response.dialog = it
+            }
             return response
         }
     }
@@ -33,8 +45,8 @@ data class BaseResponse<T>(
 
 @Serializable
 data class EdumyResult(
-    @SerialName("error") val error: String? = null,
-    @SerialName("success") val success: Boolean?
+    @SerialName("success") val success: Boolean?,
+    @SerialName("message") val message: String? = null
 )
 
 @Serializable

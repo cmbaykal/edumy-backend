@@ -1,5 +1,6 @@
 package com.edumy.data.answer
 
+import com.edumy.base.BaseResponse
 import com.edumy.util.DateSerializer
 import com.edumy.util.FileType
 import com.edumy.util.FileType.Companion.fileType
@@ -22,7 +23,6 @@ fun Application.answerRoutes(database: CoroutineDatabase) {
     val answers = database.getCollection<Answer>()
 
     routing {
-
         post<AddAnswer> {
             val multipartData = call.receiveMultipart()
             val answer = Answer()
@@ -57,9 +57,10 @@ fun Application.answerRoutes(database: CoroutineDatabase) {
 
             if (answers.insertOne(answer).wasAcknowledged()) {
                 call.response.status(HttpStatusCode.OK)
-                call.respond(answer)
+                call.respond(BaseResponse.success(answer))
             } else {
-                call.respond(HttpStatusCode.InternalServerError)
+                call.response.status(HttpStatusCode.InternalServerError)
+                call.respond(BaseResponse.error())
             }
         }
 
@@ -82,27 +83,49 @@ fun Application.answerRoutes(database: CoroutineDatabase) {
                 }
 
                 if (answers.deleteOneById(request.answerId).wasAcknowledged()) {
-                    call.respond(HttpStatusCode.OK)
+                    call.response.status(HttpStatusCode.OK)
+                    call.respond(BaseResponse.ok())
                 } else {
-                    call.respond(HttpStatusCode.InternalServerError)
+                    call.response.status(HttpStatusCode.InternalServerError)
+                    call.respond(BaseResponse.error())
                 }
             } else {
-                call.respond(HttpStatusCode.BadRequest)
+                call.response.status(HttpStatusCode.BadRequest)
+                call.respond(BaseResponse.error())
             }
         }
 
         get<QuestionAnswers> { request ->
-            call.respond(answers.find(Answer::questionId eq request.questionId).toList())
+            try {
+                val foundAnswers = answers.find(Answer::questionId eq request.questionId).toList()
+                call.response.status(HttpStatusCode.OK)
+                call.respond(BaseResponse.success(foundAnswers))
+            } catch (e: Exception) {
+                call.response.status(HttpStatusCode.InternalServerError)
+                call.respond(BaseResponse.error(e.message))
+            }
         }
 
         get<UserAnswers> { request ->
-            call.respond(answers.find(Answer::userId eq request.userId).toList())
+            try {
+                val foundAnswers = answers.find(Answer::userId eq request.userId).toList()
+                call.response.status(HttpStatusCode.OK)
+                call.respond(BaseResponse.success(foundAnswers))
+            } catch (e: Exception) {
+                call.response.status(HttpStatusCode.InternalServerError)
+                call.respond(BaseResponse.error(e.message))
+            }
         }
 
         get<AllAnswers> {
-            call.respond(answers.find().toList())
+            try {
+                val foundAnswers = answers.find().toList()
+                call.response.status(HttpStatusCode.OK)
+                call.respond(BaseResponse.success(foundAnswers))
+            } catch (e: Exception) {
+                call.response.status(HttpStatusCode.InternalServerError)
+                call.respond(BaseResponse.error(e.message))
+            }
         }
-
     }
-
 }

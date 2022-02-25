@@ -1,5 +1,6 @@
 package com.edumy.data.classroom
 
+import com.edumy.base.BaseResponse
 import com.edumy.data.user.User
 import io.ktor.application.*
 import io.ktor.http.*
@@ -15,83 +16,94 @@ import org.litote.kmongo.setValue
 fun Application.classRoutes(database: CoroutineDatabase) {
 
     val users = database.getCollection<User>()
-    val classes = database.getCollection<ClassRoom>()
+    val classes = database.getCollection<Classroom>()
 
     routing {
-
         post<AddClass> {
-            val classRoom = call.receive<ClassRoom>()
+            val classroom = call.receive<Classroom>()
 
-            if (classes.insertOne(classRoom).wasAcknowledged()) {
-                call.respond(HttpStatusCode.OK)
+            if (classes.insertOne(classroom).wasAcknowledged()) {
+                call.response.status(HttpStatusCode.OK)
+                call.respond(BaseResponse.success(classroom))
             } else {
-                call.respond(HttpStatusCode.InternalServerError)
+                call.response.status(HttpStatusCode.InternalServerError)
+                call.respond(BaseResponse.error())
             }
         }
 
         post<AssignUser> { request ->
-            val classRoom = classes.findOne(ClassRoom::id eq request.classId)
+            val classroom = classes.findOne(Classroom::id eq request.classId)
             val user = users.findOne(User::id eq request.userId)
 
-            if (classRoom != null && user != null) {
-                val classUsers = classRoom.users ?: ArrayList()
+            if (classroom != null && user != null) {
+                val classUsers = classroom.users ?: ArrayList()
                 classUsers.add(user)
 
                 val updateState = classes.updateOne(
-                    ClassRoom::id eq request.classId,
-                    setValue(ClassRoom::users, classUsers)
+                    Classroom::id eq request.classId,
+                    setValue(Classroom::users, classUsers)
                 ).wasAcknowledged()
 
                 if (updateState) {
                     call.response.status(HttpStatusCode.OK)
-                    call.respond(classRoom)
+                    call.respond(BaseResponse.success(classroom))
                 } else {
-                    call.respond(HttpStatusCode.InternalServerError)
+                    call.response.status(HttpStatusCode.InternalServerError)
+                    call.respond(BaseResponse.error())
                 }
             } else {
-                call.respond(HttpStatusCode.InternalServerError)
+                call.response.status(HttpStatusCode.InternalServerError)
+                call.respond(BaseResponse.error())
             }
         }
 
         post<LeaveClass> { request ->
-            val classRoom = classes.findOne(ClassRoom::id eq request.classId)
+            val classroom = classes.findOne(Classroom::id eq request.classId)
             val user = users.findOne(User::id eq request.userId)
 
-            if (classRoom != null && user != null) {
-                val classUsers = classRoom.users ?: ArrayList()
+            if (classroom != null && user != null) {
+                val classUsers = classroom.users ?: ArrayList()
                 classUsers.remove(user)
 
                 val updateState = classes.updateOne(
-                    ClassRoom::id eq request.classId,
-                    setValue(ClassRoom::users, classUsers)
+                    Classroom::id eq request.classId,
+                    setValue(Classroom::users, classUsers)
                 ).wasAcknowledged()
 
                 if (updateState) {
                     call.response.status(HttpStatusCode.OK)
-                    call.respond(classRoom)
+                    call.respond(BaseResponse.success(classroom))
                 } else {
-                    call.respond(HttpStatusCode.InternalServerError)
+                    call.response.status(HttpStatusCode.InternalServerError)
+                    call.respond(BaseResponse.error())
                 }
             } else {
-                call.respond(HttpStatusCode.InternalServerError)
+                call.response.status(HttpStatusCode.InternalServerError)
+                call.respond(BaseResponse.error())
             }
         }
 
         get<ClassInfo> { request ->
-            val classRoom = classes.findOne(ClassRoom::id eq request.classId)
+            val classroom = classes.findOne(Classroom::id eq request.classId)
 
-            if (classRoom != null) {
+            if (classroom != null) {
                 call.response.status(HttpStatusCode.OK)
-                call.respond(classRoom)
+                call.respond(BaseResponse.success(classroom))
             } else {
-                call.respond(HttpStatusCode.InternalServerError)
+                call.response.status(HttpStatusCode.InternalServerError)
+                call.respond(BaseResponse.error())
             }
         }
 
         get<AllClasses> {
-            call.respond(classes.find().toList())
+            try {
+                val foundClasses = classes.find().toList()
+                call.response.status(HttpStatusCode.OK)
+                call.respond(BaseResponse.success(foundClasses))
+            } catch (e: Exception) {
+                call.response.status(HttpStatusCode.InternalServerError)
+                call.respond(BaseResponse.error(e.message))
+            }
         }
-
     }
-
 }

@@ -1,5 +1,6 @@
 package com.edumy.data.usage
 
+import com.edumy.base.BaseResponse
 import com.edumy.data.user.User
 import io.ktor.application.*
 import io.ktor.http.*
@@ -10,6 +11,7 @@ import io.ktor.response.*
 import io.ktor.routing.*
 import org.litote.kmongo.coroutine.CoroutineDatabase
 import org.litote.kmongo.eq
+import org.litote.kmongo.json
 
 
 fun Application.usageRoutes(database: CoroutineDatabase) {
@@ -18,7 +20,6 @@ fun Application.usageRoutes(database: CoroutineDatabase) {
     val usages = database.getCollection<UsageData>()
 
     routing {
-
         post<AddUsage> {
             val usageData = call.receive<UsageData>()
             var existUsage = usages.findOne(UsageData::userId eq usageData.userId)
@@ -34,15 +35,19 @@ fun Application.usageRoutes(database: CoroutineDatabase) {
                 )
 
                 if (updateResult.wasAcknowledged()) {
-                    call.respond(HttpStatusCode.OK)
+                    call.response.status(HttpStatusCode.OK)
+                    call.respond(BaseResponse.success(updateResult.json))
                 } else {
-                    call.respond(HttpStatusCode.InternalServerError)
+                    call.response.status(HttpStatusCode.InternalServerError)
+                    call.respond(BaseResponse.error())
                 }
             } else {
                 if (usages.insertOne(usageData).wasAcknowledged()) {
-                    call.respond(HttpStatusCode.OK)
+                    call.response.status(HttpStatusCode.OK)
+                    call.respond(BaseResponse.success(usageData))
                 } else {
-                    call.respond(HttpStatusCode.InternalServerError)
+                    call.response.status(HttpStatusCode.InternalServerError)
+                    call.respond(BaseResponse.error())
                 }
             }
         }
@@ -51,35 +56,45 @@ fun Application.usageRoutes(database: CoroutineDatabase) {
             val user = users.findOneById(request.userId)
 
             if (user != null) {
-                call.response.status(HttpStatusCode.OK)
                 val usageData = usages.findOne(UsageData::userId eq request.userId)
-                if (usageData != null) {
-                    call.respond(usageData)
-                } else {
-                    call.respond(UsageData(request.userId, ArrayList()))
-                }
+                call.response.status(HttpStatusCode.OK)
+                call.respond(BaseResponse.success(usageData ?: UsageData(request.userId, ArrayList())))
             } else {
-                call.respond(HttpStatusCode.InternalServerError)
+                call.response.status(HttpStatusCode.InternalServerError)
+                call.respond(BaseResponse.error())
             }
         }
 
         post<DeleteUsages> { request ->
             if (usages.deleteOne(UsageData::userId eq request.userId).wasAcknowledged()) {
-                call.respond(HttpStatusCode.OK)
+                call.response.status(HttpStatusCode.OK)
+                call.respond(BaseResponse.ok())
             } else {
-                call.respond(HttpStatusCode.InternalServerError)
+                call.response.status(HttpStatusCode.InternalServerError)
+                call.respond(BaseResponse.error())
             }
         }
 
         post<DeleteAllUsages> {
-            usages.drop()
-            call.respond(HttpStatusCode.OK)
+            try {
+                usages.drop()
+                call.response.status(HttpStatusCode.OK)
+                call.respond(BaseResponse.ok())
+            } catch (e: Exception) {
+                call.response.status(HttpStatusCode.InternalServerError)
+                call.respond(BaseResponse.error(e.message))
+            }
         }
 
         get<AllUsages> {
-            call.respond(usages.find().toList())
+            try {
+                val foundUsages = usages.find().toList()
+                call.response.status(HttpStatusCode.OK)
+                call.respond(BaseResponse.success(foundUsages))
+            } catch (e: Exception) {
+                call.response.status(HttpStatusCode.InternalServerError)
+                call.respond(BaseResponse.error(e.message))
+            }
         }
-
     }
-
 }

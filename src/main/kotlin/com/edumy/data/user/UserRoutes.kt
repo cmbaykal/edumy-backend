@@ -2,6 +2,7 @@ package com.edumy.data.user
 
 import com.edumy.base.BaseResponse
 import io.ktor.application.*
+import io.ktor.features.*
 import io.ktor.http.*
 import io.ktor.locations.*
 import io.ktor.locations.post
@@ -17,17 +18,16 @@ fun Application.userRoutes(database: CoroutineDatabase) {
     val users = database.getCollection<User>()
 
     routing {
-
         post<RegisterUser> {
-             val requestBody = call.receive<User>()
+            val requestBody = call.receive<User>()
 
-                if (users.insertOne(requestBody).wasAcknowledged()) {
-                    call.response.status(HttpStatusCode.OK)
-                    call.respond(BaseResponse.success(requestBody))
-                } else {
-                    call.response.status(HttpStatusCode.InternalServerError)
-                    call.respond(BaseResponse.error())
-                }
+            if (users.insertOne(requestBody).wasAcknowledged()) {
+                call.response.status(HttpStatusCode.OK)
+                call.respond(BaseResponse.success(requestBody))
+            } else {
+                call.response.status(HttpStatusCode.InternalServerError)
+                call.respond(BaseResponse.error())
+            }
         }
 
         post<LoginUser> {
@@ -36,9 +36,10 @@ fun Application.userRoutes(database: CoroutineDatabase) {
 
             if (user != null && user.pass == authUser.pass) {
                 call.response.status(HttpStatusCode.OK)
-                call.respond(user)
+                call.respond(BaseResponse.success(user))
             } else {
-                call.respond(HttpStatusCode.Unauthorized)
+                call.response.status(HttpStatusCode.InternalServerError)
+                call.respond(BaseResponse.error())
             }
         }
 
@@ -48,17 +49,20 @@ fun Application.userRoutes(database: CoroutineDatabase) {
 
             if (updateResult.wasAcknowledged()) {
                 call.response.status(HttpStatusCode.OK)
-                call.respond(updateResult.json)
+                call.respond(BaseResponse.success(updateResult.json))
             } else {
-                call.respond(HttpStatusCode.InternalServerError)
+                call.response.status(HttpStatusCode.InternalServerError)
+                call.respond(BaseResponse.error())
             }
         }
 
         post<DeleteUser> { request ->
             if (users.deleteOne(User::id eq request.userId).wasAcknowledged()) {
-                call.respond(HttpStatusCode.OK)
+                call.response.status(HttpStatusCode.OK)
+                call.respond(BaseResponse.ok())
             } else {
-                call.respond(HttpStatusCode.InternalServerError)
+                call.response.status(HttpStatusCode.InternalServerError)
+                call.respond(BaseResponse.error())
             }
         }
 
@@ -66,16 +70,23 @@ fun Application.userRoutes(database: CoroutineDatabase) {
             val user = users.findOne(User::id eq request.userId)
 
             if (user != null) {
-                call.respond(user)
+                call.response.status(HttpStatusCode.OK)
+                call.respond(BaseResponse.success(user))
             } else {
-                call.respond(HttpStatusCode.NotFound)
+                call.response.status(HttpStatusCode.NotFound)
+                call.respond(BaseResponse.error())
             }
         }
 
         get<AllUsers> {
-            call.respond(users.find().toList())
+            try {
+                val foundUsers = users.find().toList()
+                call.response.status(HttpStatusCode.OK)
+                call.respond(foundUsers)
+            } catch (e: Exception) {
+                call.response.status(HttpStatusCode.InternalServerError)
+                call.respond(BaseResponse.error(e.message))
+            }
         }
-
     }
-
 }

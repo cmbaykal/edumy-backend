@@ -32,5 +32,4 @@ dependencies {
     implementation("com.ToxicBakery.library.bcrypt:bcrypt:$bcrypt_version")
     testImplementation("io.ktor:ktor-server-tests:$ktor_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
-
 }
