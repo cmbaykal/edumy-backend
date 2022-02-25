@@ -2,7 +2,6 @@ package com.edumy.data.user
 
 import com.edumy.base.BaseResponse
 import io.ktor.application.*
-import io.ktor.features.*
 import io.ktor.http.*
 import io.ktor.locations.*
 import io.ktor.locations.post
@@ -19,61 +18,81 @@ fun Application.userRoutes(database: CoroutineDatabase) {
 
     routing {
         post<RegisterUser> {
-            val requestBody = call.receive<User>()
-
-            if (users.insertOne(requestBody).wasAcknowledged()) {
+            try {
+                val requestBody = call.receive<User>()
+                users.insertOne(requestBody).wasAcknowledged()
                 call.response.status(HttpStatusCode.OK)
                 call.respond(BaseResponse.success(requestBody))
-            } else {
-                call.response.status(HttpStatusCode.InternalServerError)
-                call.respond(BaseResponse.error())
+            } catch (e: Exception) {
+                call.response.status(HttpStatusCode.BadRequest)
+                call.respond(BaseResponse.error(e.message))
             }
         }
 
         post<LoginUser> {
-            val authUser = call.receive<UserCredentials>()
-            val user = users.findOne(User::mail eq authUser.mail)
+            try {
+                val authUser = call.receive<UserCredentials>()
+                val user = users.findOne(User::mail eq authUser.mail)
 
-            if (user != null && user.pass == authUser.pass) {
-                call.response.status(HttpStatusCode.OK)
-                call.respond(BaseResponse.success(user))
-            } else {
-                call.response.status(HttpStatusCode.InternalServerError)
-                call.respond(BaseResponse.error())
+                if (user != null && user.pass == authUser.pass) {
+                    call.response.status(HttpStatusCode.OK)
+                    call.respond(BaseResponse.success(user))
+                } else {
+                    call.response.status(HttpStatusCode.NonAuthoritativeInformation)
+                    call.respond(BaseResponse.error())
+                }
+            } catch (e: Exception) {
+                call.response.status(HttpStatusCode.BadRequest)
+                call.respond(BaseResponse.error(e.message))
             }
         }
 
         post<UpdateUser> { request ->
-            val updateUser = call.receive<User>().copy(id = request.userId)
-            val updateResult = users.updateOneById(request.userId, updateUser, updateOnlyNotNullProperties = true)
+            try {
+                val updateUser = call.receive<User>().copy(id = request.userId)
+                val updateResult = users.updateOneById(request.userId, updateUser, updateOnlyNotNullProperties = true)
 
-            if (updateResult.wasAcknowledged()) {
-                call.response.status(HttpStatusCode.OK)
-                call.respond(BaseResponse.success(updateResult.json))
-            } else {
-                call.response.status(HttpStatusCode.InternalServerError)
-                call.respond(BaseResponse.error())
+                if (updateResult.wasAcknowledged()) {
+                    call.response.status(HttpStatusCode.OK)
+                    call.respond(BaseResponse.success(updateResult.json))
+                } else {
+                    call.response.status(HttpStatusCode.InternalServerError)
+                    call.respond(BaseResponse.error())
+                }
+            } catch (e: Exception) {
+                call.response.status(HttpStatusCode.BadRequest)
+                call.respond(BaseResponse.error(e.message))
             }
         }
 
         post<DeleteUser> { request ->
-            if (users.deleteOne(User::id eq request.userId).wasAcknowledged()) {
-                call.response.status(HttpStatusCode.OK)
-                call.respond(BaseResponse.ok())
-            } else {
-                call.response.status(HttpStatusCode.InternalServerError)
-                call.respond(BaseResponse.error())
+            try {
+                if (users.deleteOne(User::id eq request.userId).wasAcknowledged()) {
+                    call.response.status(HttpStatusCode.OK)
+                    call.respond(BaseResponse.ok())
+                } else {
+                    call.response.status(HttpStatusCode.InternalServerError)
+                    call.respond(BaseResponse.error())
+                }
+            } catch (e: Exception) {
+                call.response.status(HttpStatusCode.BadRequest)
+                call.respond(BaseResponse.error(e.message))
             }
         }
 
         get<UserInfo> { request ->
-            val user = users.findOne(User::id eq request.userId)
+            try {
+                val user = users.findOne(User::id eq request.userId)
 
-            if (user != null) {
-                call.response.status(HttpStatusCode.OK)
-                call.respond(BaseResponse.success(user))
-            } else {
-                call.response.status(HttpStatusCode.NotFound)
+                if (user != null) {
+                    call.response.status(HttpStatusCode.OK)
+                    call.respond(BaseResponse.success(user))
+                } else {
+                    call.response.status(HttpStatusCode.NotFound)
+                    call.respond(BaseResponse.error())
+                }
+            } catch (e: Exception) {
+                call.response.status(HttpStatusCode.InternalServerError)
                 call.respond(BaseResponse.error())
             }
         }
@@ -84,7 +103,7 @@ fun Application.userRoutes(database: CoroutineDatabase) {
                 call.response.status(HttpStatusCode.OK)
                 call.respond(foundUsers)
             } catch (e: Exception) {
-                call.response.status(HttpStatusCode.InternalServerError)
+                call.response.status(HttpStatusCode.BadRequest)
                 call.respond(BaseResponse.error(e.message))
             }
         }

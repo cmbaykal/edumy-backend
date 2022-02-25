@@ -24,74 +24,84 @@ fun Application.answerRoutes(database: CoroutineDatabase) {
 
     routing {
         post<AddAnswer> {
-            val multipartData = call.receiveMultipart()
-            val answer = Answer()
+            try {
+                val multipartData = call.receiveMultipart()
+                val answer = Answer()
 
-            multipartData.forEachPart { part ->
-                when (part) {
-                    is PartData.FormItem -> {
-                        when (part.name) {
-                            "questionId" -> answer.questionId = part.value
-                            "userId" -> answer.userId = part.value
-                            "date" -> answer.date = DateSerializer.parse(part.value)
-                        }
-                    }
-                    is PartData.FileItem -> {
-                        val type = part.contentType.toString().fileType
-                        val extension = (part.originalFileName as String).substringAfterLast(".")
-                        val fileName = UUID.randomUUID().toString() + "." + extension
-                        val fileBytes = part.streamProvider().readBytes()
-                        File("uploads/${type.path}/$fileName").writeBytes(fileBytes)
-
-                        when (type) {
-                            FileType.VideoMP4 -> {
-                                answer.video = "http://0.0.0.0:8080/video/$fileName"
-                            }
-                            else -> {
-                                answer.image = "http://0.0.0.0:8080/image/$fileName"
+                multipartData.forEachPart { part ->
+                    when (part) {
+                        is PartData.FormItem -> {
+                            when (part.name) {
+                                "questionId" -> answer.questionId = part.value
+                                "userId" -> answer.userId = part.value
+                                "date" -> answer.date = DateSerializer.parse(part.value)
                             }
                         }
-                    }
-                }
-            }
+                        is PartData.FileItem -> {
+                            val type = part.contentType.toString().fileType
+                            val extension = (part.originalFileName as String).substringAfterLast(".")
+                            val fileName = UUID.randomUUID().toString() + "." + extension
+                            val fileBytes = part.streamProvider().readBytes()
+                            File("uploads/${type.path}/$fileName").writeBytes(fileBytes)
 
-            if (answers.insertOne(answer).wasAcknowledged()) {
-                call.response.status(HttpStatusCode.OK)
-                call.respond(BaseResponse.success(answer))
-            } else {
-                call.response.status(HttpStatusCode.InternalServerError)
-                call.respond(BaseResponse.error())
-            }
-        }
-
-        post<DeleteAnswer> { request ->
-            val answer = answers.findOne(Answer::id eq request.answerId)
-            if (answer != null) {
-                if (!answer.image.isNullOrEmpty()) {
-                    val fileName = answer.image!!.substringAfterLast("/")
-                    val file = File("uploads/image/$fileName")
-                    if (file.exists()) {
-                        file.delete()
-                    }
-                }
-                if (!answer.video.isNullOrEmpty()) {
-                    val fileName = answer.video!!.substringAfterLast("/")
-                    val file = File("uploads/video/$fileName")
-                    if (file.exists()) {
-                        file.delete()
+                            when (type) {
+                                FileType.VideoMP4 -> {
+                                    answer.video = "http://0.0.0.0:8080/video/$fileName"
+                                }
+                                else -> {
+                                    answer.image = "http://0.0.0.0:8080/image/$fileName"
+                                }
+                            }
+                        }
                     }
                 }
 
-                if (answers.deleteOneById(request.answerId).wasAcknowledged()) {
+                if (answers.insertOne(answer).wasAcknowledged()) {
                     call.response.status(HttpStatusCode.OK)
-                    call.respond(BaseResponse.ok())
+                    call.respond(BaseResponse.success(answer))
                 } else {
                     call.response.status(HttpStatusCode.InternalServerError)
                     call.respond(BaseResponse.error())
                 }
-            } else {
+            } catch (e: Exception) {
                 call.response.status(HttpStatusCode.BadRequest)
-                call.respond(BaseResponse.error())
+                call.respond(BaseResponse.error(e.message))
+            }
+        }
+
+        post<DeleteAnswer> { request ->
+            try {
+                val answer = answers.findOne(Answer::id eq request.answerId)
+                if (answer != null) {
+                    if (!answer.image.isNullOrEmpty()) {
+                        val fileName = answer.image!!.substringAfterLast("/")
+                        val file = File("uploads/image/$fileName")
+                        if (file.exists()) {
+                            file.delete()
+                        }
+                    }
+                    if (!answer.video.isNullOrEmpty()) {
+                        val fileName = answer.video!!.substringAfterLast("/")
+                        val file = File("uploads/video/$fileName")
+                        if (file.exists()) {
+                            file.delete()
+                        }
+                    }
+
+                    if (answers.deleteOneById(request.answerId).wasAcknowledged()) {
+                        call.response.status(HttpStatusCode.OK)
+                        call.respond(BaseResponse.ok())
+                    } else {
+                        call.response.status(HttpStatusCode.InternalServerError)
+                        call.respond(BaseResponse.error())
+                    }
+                } else {
+                    call.response.status(HttpStatusCode.NotFound)
+                    call.respond(BaseResponse.error())
+                }
+            } catch (e: Exception) {
+                call.response.status(HttpStatusCode.BadRequest)
+                call.respond(BaseResponse.error(e.message))
             }
         }
 
@@ -101,7 +111,7 @@ fun Application.answerRoutes(database: CoroutineDatabase) {
                 call.response.status(HttpStatusCode.OK)
                 call.respond(BaseResponse.success(foundAnswers))
             } catch (e: Exception) {
-                call.response.status(HttpStatusCode.InternalServerError)
+                call.response.status(HttpStatusCode.BadRequest)
                 call.respond(BaseResponse.error(e.message))
             }
         }
@@ -112,7 +122,7 @@ fun Application.answerRoutes(database: CoroutineDatabase) {
                 call.response.status(HttpStatusCode.OK)
                 call.respond(BaseResponse.success(foundAnswers))
             } catch (e: Exception) {
-                call.response.status(HttpStatusCode.InternalServerError)
+                call.response.status(HttpStatusCode.BadRequest)
                 call.respond(BaseResponse.error(e.message))
             }
         }
@@ -123,7 +133,7 @@ fun Application.answerRoutes(database: CoroutineDatabase) {
                 call.response.status(HttpStatusCode.OK)
                 call.respond(BaseResponse.success(foundAnswers))
             } catch (e: Exception) {
-                call.response.status(HttpStatusCode.InternalServerError)
+                call.response.status(HttpStatusCode.BadRequest)
                 call.respond(BaseResponse.error(e.message))
             }
         }

@@ -21,57 +21,75 @@ fun Application.usageRoutes(database: CoroutineDatabase) {
 
     routing {
         post<AddUsage> {
-            val usageData = call.receive<UsageData>()
-            var existUsage = usages.findOne(UsageData::userId eq usageData.userId)
+            try {
+                val usageData = call.receive<UsageData>()
+                var existUsage = usages.findOne(UsageData::userId eq usageData.userId)
 
-            if (existUsage != null) {
-                val appUsages = existUsage.usages ?: ArrayList()
-                appUsages.addAll(usageData.usages!!)
-                existUsage = existUsage.copy(usages = appUsages)
-                val updateResult = usages.updateOne(
-                    UsageData::userId eq usageData.userId,
-                    existUsage,
-                    updateOnlyNotNullProperties = true
-                )
+                if (existUsage != null) {
+                    val appUsages = existUsage.usages ?: ArrayList()
+                    usageData.usages?.let {
+                        appUsages.addAll(it)
+                    }
 
-                if (updateResult.wasAcknowledged()) {
-                    call.response.status(HttpStatusCode.OK)
-                    call.respond(BaseResponse.success(updateResult.json))
+                    existUsage = existUsage.copy(usages = appUsages)
+                    val updateResult = usages.updateOne(
+                        UsageData::userId eq usageData.userId,
+                        existUsage,
+                        updateOnlyNotNullProperties = true
+                    )
+
+                    if (updateResult.wasAcknowledged()) {
+                        call.response.status(HttpStatusCode.OK)
+                        call.respond(BaseResponse.success(updateResult.json))
+                    } else {
+                        call.response.status(HttpStatusCode.InternalServerError)
+                        call.respond(BaseResponse.error())
+                    }
                 } else {
-                    call.response.status(HttpStatusCode.InternalServerError)
-                    call.respond(BaseResponse.error())
+                    if (usages.insertOne(usageData).wasAcknowledged()) {
+                        call.response.status(HttpStatusCode.OK)
+                        call.respond(BaseResponse.success(usageData))
+                    } else {
+                        call.response.status(HttpStatusCode.InternalServerError)
+                        call.respond(BaseResponse.error())
+                    }
                 }
-            } else {
-                if (usages.insertOne(usageData).wasAcknowledged()) {
-                    call.response.status(HttpStatusCode.OK)
-                    call.respond(BaseResponse.success(usageData))
-                } else {
-                    call.response.status(HttpStatusCode.InternalServerError)
-                    call.respond(BaseResponse.error())
-                }
+            } catch (e: Exception) {
+                call.response.status(HttpStatusCode.BadRequest)
+                call.respond(BaseResponse.error(e.message))
             }
         }
 
         get<UserUsages> { request ->
-            val user = users.findOneById(request.userId)
+            try {
+                val user = users.findOneById(request.userId)
 
-            if (user != null) {
-                val usageData = usages.findOne(UsageData::userId eq request.userId)
-                call.response.status(HttpStatusCode.OK)
-                call.respond(BaseResponse.success(usageData ?: UsageData(request.userId, ArrayList())))
-            } else {
+                if (user != null) {
+                    val usageData = usages.findOne(UsageData::userId eq request.userId)
+                    call.response.status(HttpStatusCode.OK)
+                    call.respond(BaseResponse.success(usageData ?: UsageData(request.userId, ArrayList())))
+                } else {
+                    call.response.status(HttpStatusCode.NotFound)
+                    call.respond(BaseResponse.error())
+                }
+            } catch (e: Exception) {
                 call.response.status(HttpStatusCode.InternalServerError)
-                call.respond(BaseResponse.error())
+                call.respond(BaseResponse.error(e.message))
             }
         }
 
         post<DeleteUsages> { request ->
-            if (usages.deleteOne(UsageData::userId eq request.userId).wasAcknowledged()) {
-                call.response.status(HttpStatusCode.OK)
-                call.respond(BaseResponse.ok())
-            } else {
-                call.response.status(HttpStatusCode.InternalServerError)
-                call.respond(BaseResponse.error())
+            try {
+                if (usages.deleteOne(UsageData::userId eq request.userId).wasAcknowledged()) {
+                    call.response.status(HttpStatusCode.OK)
+                    call.respond(BaseResponse.ok())
+                } else {
+                    call.response.status(HttpStatusCode.InternalServerError)
+                    call.respond(BaseResponse.error())
+                }
+            } catch (e: Exception) {
+                call.response.status(HttpStatusCode.BadRequest)
+                call.respond(BaseResponse.error(e.message))
             }
         }
 

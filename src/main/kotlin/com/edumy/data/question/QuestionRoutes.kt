@@ -22,70 +22,83 @@ fun Application.questionRoutes(database: CoroutineDatabase) {
 
     routing {
         post<AddQuestion> {
-            val multipartData = call.receiveMultipart()
-            val question = Question()
+            try {
+                val multipartData = call.receiveMultipart()
+                val question = Question()
 
-            multipartData.forEachPart { part ->
-                when (part) {
-                    is PartData.FormItem -> {
-                        when (part.name) {
-                            "classId" -> question.classId = part.value
-                            "userId" -> question.userId = part.value
-                            "lesson" -> question.lesson = part.value
-                            "question" -> question.question = part.value
-                            "date" -> question.date = DateSerializer.parse(part.value)
+                multipartData.forEachPart { part ->
+                    when (part) {
+                        is PartData.FormItem -> {
+                            when (part.name) {
+                                "classId" -> question.classId = part.value
+                                "userId" -> question.userId = part.value
+                                "lesson" -> question.lesson = part.value
+                                "question" -> question.question = part.value
+                                "date" -> question.date = DateSerializer.parse(part.value)
+                            }
                         }
-                    }
-                    is PartData.FileItem -> {
-                        val extension = (part.originalFileName as String).substringAfterLast(".")
-                        val fileName = UUID.randomUUID().toString() + "." + extension
-                        val fileBytes = part.streamProvider().readBytes()
-                        File("uploads/image/$fileName").writeBytes(fileBytes)
+                        is PartData.FileItem -> {
+                            val extension = (part.originalFileName as String).substringAfterLast(".")
+                            val fileName = UUID.randomUUID().toString() + "." + extension
+                            val fileBytes = part.streamProvider().readBytes()
+                            File("uploads/image/$fileName").writeBytes(fileBytes)
 
-                        question.image = "http://0.0.0.0:8080/image/$fileName"
-                    }
-                    is PartData.BinaryItem -> TODO()
-                }
-            }
-
-            if (questions.insertOne(question).wasAcknowledged()) {
-                call.response.status(HttpStatusCode.OK)
-                call.respond(BaseResponse.success(question))
-            } else {
-                call.response.status(HttpStatusCode.InternalServerError)
-                call.respond(BaseResponse.error())
-            }
-        }
-
-        post<DeleteQuestion> { request ->
-            val question = questions.findOne(Answer::id eq request.questionId)
-            if (question != null) {
-                if (!question.image.isNullOrEmpty()) {
-                    val fileName = question.image!!.substringAfterLast("/")
-                    val file = File("uploads/image/$fileName")
-                    if (file.exists()) {
-                        file.delete()
+                            question.image = "http://0.0.0.0:8080/image/$fileName"
+                        }
+                        is PartData.BinaryItem -> TODO()
                     }
                 }
 
-                if (questions.deleteOneById(request.questionId).wasAcknowledged()) {
+                if (questions.insertOne(question).wasAcknowledged()) {
                     call.response.status(HttpStatusCode.OK)
-                    call.respond(BaseResponse.ok())
+                    call.respond(BaseResponse.success(question))
                 } else {
                     call.response.status(HttpStatusCode.InternalServerError)
                     call.respond(BaseResponse.error())
                 }
-            } else {
-                call.respond(HttpStatusCode.BadRequest)
-                call.respond(BaseResponse.error())
+            } catch (e: Exception) {
+                call.response.status(HttpStatusCode.BadRequest)
+                call.respond(BaseResponse.error(e.message))
+            }
+        }
+
+        post<DeleteQuestion> { request ->
+            try {
+                val question = questions.findOne(Answer::id eq request.questionId)
+
+                if (question != null) {
+                    if (!question.image.isNullOrEmpty()) {
+                        val fileName = question.image!!.substringAfterLast("/")
+                        val file = File("uploads/image/$fileName")
+                        if (file.exists()) {
+                            file.delete()
+                        }
+                    }
+
+                    if (questions.deleteOneById(request.questionId).wasAcknowledged()) {
+                        call.response.status(HttpStatusCode.OK)
+                        call.respond(BaseResponse.ok())
+                    } else {
+                        call.response.status(HttpStatusCode.InternalServerError)
+                        call.respond(BaseResponse.error())
+                    }
+                } else {
+                    call.respond(HttpStatusCode.NotFound)
+                    call.respond(BaseResponse.error())
+                }
+            } catch (e: Exception) {
+                call.response.status(HttpStatusCode.BadRequest)
+                call.respond(BaseResponse.error(e.message))
             }
         }
 
         get<AllQuestions> {
             try {
-                call.respond(questions.find().toList())
+                val foundQuestions = questions.find().toList()
+                call.response.status(HttpStatusCode.OK)
+                call.respond(BaseResponse.success(foundQuestions))
             } catch (e: Exception) {
-                call.respond(HttpStatusCode.BadRequest)
+                call.respond(HttpStatusCode.InternalServerError)
                 call.respond(BaseResponse.error(e.message))
             }
         }
@@ -96,7 +109,7 @@ fun Application.questionRoutes(database: CoroutineDatabase) {
                 call.response.status(HttpStatusCode.OK)
                 call.respond(BaseResponse.success(foundQuestions))
             } catch (e: Exception) {
-                call.respond(HttpStatusCode.BadRequest)
+                call.respond(HttpStatusCode.InternalServerError)
                 call.respond(BaseResponse.error(e.message))
             }
         }
@@ -107,7 +120,7 @@ fun Application.questionRoutes(database: CoroutineDatabase) {
                 call.response.status(HttpStatusCode.OK)
                 call.respond(BaseResponse.success(foundQuestions))
             } catch (e: Exception) {
-                call.respond(HttpStatusCode.BadRequest)
+                call.respond(HttpStatusCode.InternalServerError)
                 call.respond(BaseResponse.error(e.message))
             }
         }
@@ -118,7 +131,7 @@ fun Application.questionRoutes(database: CoroutineDatabase) {
                 call.response.status(HttpStatusCode.OK)
                 call.respond(BaseResponse.success(foundQuestions))
             } catch (e: Exception) {
-                call.respond(HttpStatusCode.BadRequest)
+                call.respond(HttpStatusCode.InternalServerError)
                 call.respond(BaseResponse.error(e.message))
             }
         }

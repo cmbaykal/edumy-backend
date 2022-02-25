@@ -18,24 +18,34 @@ fun Application.performanceRoutes(database: CoroutineDatabase) {
     routing {
 
         post<AddPerformance> {
-            val performance = call.receive<Performance>()
+            try {
+                val performance = call.receive<Performance>()
 
-            if (performances.insertOne(performance).wasAcknowledged()) {
-                call.response.status(HttpStatusCode.OK)
-                call.respond(BaseResponse.success(performance))
-            } else {
-                call.response.status(HttpStatusCode.InternalServerError)
-                call.respond(BaseResponse.error())
+                if (performances.insertOne(performance).wasAcknowledged()) {
+                    call.response.status(HttpStatusCode.OK)
+                    call.respond(BaseResponse.success(performance))
+                } else {
+                    call.response.status(HttpStatusCode.InternalServerError)
+                    call.respond(BaseResponse.error())
+                }
+            } catch (e: Exception) {
+                call.response.status(HttpStatusCode.BadRequest)
+                call.respond(BaseResponse.error(e.message))
             }
         }
 
         post<DeletePerformance> { request ->
-            if (performances.deleteOne(Performance::id eq request.performanceId).wasAcknowledged()) {
-                call.response.status(HttpStatusCode.OK)
-                call.respond(BaseResponse.ok())
-            } else {
-                call.response.status(HttpStatusCode.InternalServerError)
-                call.respond(BaseResponse.error())
+            try {
+                if (performances.deleteOne(Performance::id eq request.performanceId).wasAcknowledged()) {
+                    call.response.status(HttpStatusCode.OK)
+                    call.respond(BaseResponse.ok())
+                } else {
+                    call.response.status(HttpStatusCode.InternalServerError)
+                    call.respond(BaseResponse.error())
+                }
+            } catch (e: Exception) {
+                call.response.status(HttpStatusCode.BadRequest)
+                call.respond(BaseResponse.error(e.message))
             }
         }
 

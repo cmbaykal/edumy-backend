@@ -20,78 +20,99 @@ fun Application.classRoutes(database: CoroutineDatabase) {
 
     routing {
         post<AddClass> {
-            val classroom = call.receive<Classroom>()
+            try {
+                val classroom = call.receive<Classroom>()
 
-            if (classes.insertOne(classroom).wasAcknowledged()) {
-                call.response.status(HttpStatusCode.OK)
-                call.respond(BaseResponse.success(classroom))
-            } else {
-                call.response.status(HttpStatusCode.InternalServerError)
-                call.respond(BaseResponse.error())
+                if (classes.insertOne(classroom).wasAcknowledged()) {
+                    call.response.status(HttpStatusCode.OK)
+                    call.respond(BaseResponse.success(classroom))
+                } else {
+                    call.response.status(HttpStatusCode.InternalServerError)
+                    call.respond(BaseResponse.error())
+                }
+            } catch (e: Exception) {
+                call.response.status(HttpStatusCode.BadRequest)
+                call.respond(BaseResponse.error(e.message))
             }
         }
 
         post<AssignUser> { request ->
-            val classroom = classes.findOne(Classroom::id eq request.classId)
-            val user = users.findOne(User::id eq request.userId)
+            try {
+                val classroom = classes.findOne(Classroom::id eq request.classId)
+                val user = users.findOne(User::id eq request.userId)
 
-            if (classroom != null && user != null) {
-                val classUsers = classroom.users ?: ArrayList()
-                classUsers.add(user)
+                if (classroom != null && user != null) {
+                    val classUsers = classroom.users ?: ArrayList()
+                    classUsers.add(user)
 
-                val updateState = classes.updateOne(
-                    Classroom::id eq request.classId,
-                    setValue(Classroom::users, classUsers)
-                ).wasAcknowledged()
+                    val updateState = classes.updateOne(
+                        Classroom::id eq request.classId,
+                        setValue(Classroom::users, classUsers)
+                    ).wasAcknowledged()
 
-                if (updateState) {
-                    call.response.status(HttpStatusCode.OK)
-                    call.respond(BaseResponse.success(classroom))
+                    if (updateState) {
+                        call.response.status(HttpStatusCode.OK)
+                        call.respond(BaseResponse.success(classroom))
+                    } else {
+                        call.response.status(HttpStatusCode.InternalServerError)
+                        call.respond(BaseResponse.error())
+                    }
                 } else {
-                    call.response.status(HttpStatusCode.InternalServerError)
+                    call.response.status(HttpStatusCode.NotFound)
                     call.respond(BaseResponse.error())
                 }
-            } else {
-                call.response.status(HttpStatusCode.InternalServerError)
-                call.respond(BaseResponse.error())
+            } catch (e: Exception) {
+                call.response.status(HttpStatusCode.BadRequest)
+                call.respond(BaseResponse.error(e.message))
             }
         }
 
         post<LeaveClass> { request ->
-            val classroom = classes.findOne(Classroom::id eq request.classId)
-            val user = users.findOne(User::id eq request.userId)
+            try {
+                val classroom = classes.findOne(Classroom::id eq request.classId)
+                val user = users.findOne(User::id eq request.userId)
 
-            if (classroom != null && user != null) {
-                val classUsers = classroom.users ?: ArrayList()
-                classUsers.remove(user)
+                if (classroom != null && user != null) {
+                    val classUsers = classroom.users ?: ArrayList()
+                    classUsers.remove(user)
 
-                val updateState = classes.updateOne(
-                    Classroom::id eq request.classId,
-                    setValue(Classroom::users, classUsers)
-                ).wasAcknowledged()
+                    val updateState = classes.updateOne(
+                        Classroom::id eq request.classId,
+                        setValue(Classroom::users, classUsers)
+                    ).wasAcknowledged()
 
-                if (updateState) {
-                    call.response.status(HttpStatusCode.OK)
-                    call.respond(BaseResponse.success(classroom))
+                    if (updateState) {
+                        call.response.status(HttpStatusCode.OK)
+                        call.respond(BaseResponse.success(classroom))
+                    } else {
+                        call.response.status(HttpStatusCode.InternalServerError)
+                        call.respond(BaseResponse.error())
+                    }
                 } else {
-                    call.response.status(HttpStatusCode.InternalServerError)
+                    call.response.status(HttpStatusCode.NotFound)
                     call.respond(BaseResponse.error())
                 }
-            } else {
-                call.response.status(HttpStatusCode.InternalServerError)
-                call.respond(BaseResponse.error())
+            } catch (e: Exception) {
+                call.response.status(HttpStatusCode.BadRequest)
+                call.respond(BaseResponse.error(e.message))
             }
         }
 
         get<ClassInfo> { request ->
-            val classroom = classes.findOne(Classroom::id eq request.classId)
+            try {
+                val classroom = classes.findOne(Classroom::id eq request.classId)
 
-            if (classroom != null) {
-                call.response.status(HttpStatusCode.OK)
-                call.respond(BaseResponse.success(classroom))
-            } else {
-                call.response.status(HttpStatusCode.InternalServerError)
-                call.respond(BaseResponse.error())
+                if (classroom != null) {
+                    call.response.status(HttpStatusCode.OK)
+                    call.respond(BaseResponse.success(classroom))
+                } else {
+                    call.response.status(HttpStatusCode.NotFound)
+                    call.respond(BaseResponse.error())
+                }
+
+            } catch (e: Exception) {
+                call.response.status(HttpStatusCode.BadRequest)
+                call.respond(BaseResponse.error(e.message))
             }
         }
 
