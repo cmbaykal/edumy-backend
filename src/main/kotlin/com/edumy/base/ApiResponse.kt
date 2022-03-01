@@ -4,42 +4,34 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-open class BaseResult(
+open class BaseResponse(
     @SerialName("dialog")
     var dialog: EdumyDialog? = null,
 
-    @SerialName("result")
-    var result: EdumyResult? = null,
+    @SerialName("success")
+    var success: Boolean? = false,
+
+    @SerialName("error")
+    var error: String? = null
 )
 
 @Serializable
-data class BaseResponse<T>(
+data class ApiResponse<T>(
     @SerialName("data")
     var data: T? = null
-) : BaseResult() {
+) : BaseResponse() {
     companion object {
-        fun <T> success(data: T? = null): BaseResponse<T> {
-            val response = BaseResponse<T>()
-            response.result = EdumyResult(success = true)
-            response.data = data
-            return response
+        fun <T> success(data: T? = null) = ApiResponse(data).apply {
+            success = true
         }
 
-        fun ok(): BaseResult {
-            val response = BaseResult()
-            response.result = EdumyResult(success = true)
-            return response
-        }
+        fun ok(): BaseResponse = BaseResponse(success = true)
 
-        fun error(message: String? = null, dialog: EdumyDialog? = null): BaseResult {
-            val response = BaseResult()
-            val error = message ?: "Oops, an error occurred. Please try again."
-            response.result = EdumyResult(message = error, success = false)
-            dialog?.let {
-                response.dialog = it
-            }
-            return response
-        }
+        fun error(message: String? = null, dialog: EdumyDialog? = null) = BaseResponse(
+            success = false,
+            error = message ?: "Oops, an error occurred. Please try again.",
+            dialog = dialog
+        )
     }
 }
 

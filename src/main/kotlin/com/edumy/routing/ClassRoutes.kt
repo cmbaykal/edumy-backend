@@ -1,6 +1,6 @@
 package com.edumy.routing
 
-import com.edumy.base.BaseResponse
+import com.edumy.base.ApiResponse
 import com.edumy.data.classroom.*
 import com.edumy.data.user.User
 import io.ktor.application.*
@@ -28,14 +28,14 @@ fun Application.classRoutes(database: CoroutineDatabase) {
 
                     if (classes.insertOne(classroom).wasAcknowledged()) {
                         call.response.status(HttpStatusCode.OK)
-                        call.respond(BaseResponse.success(classroom))
+                        call.respond(ApiResponse.ok())
                     } else {
                         call.response.status(HttpStatusCode.InternalServerError)
-                        call.respond(BaseResponse.error())
+                        call.respond(ApiResponse.error())
                     }
                 } catch (e: Exception) {
                     call.response.status(HttpStatusCode.BadRequest)
-                    call.respond(BaseResponse.error(e.message))
+                    call.respond(ApiResponse.error(e.message))
                 }
             }
         }
@@ -54,18 +54,16 @@ fun Application.classRoutes(database: CoroutineDatabase) {
 
                         if (updateState) {
                             call.response.status(HttpStatusCode.OK)
-                            call.respond(BaseResponse.success(classroom))
+                            call.respond(ApiResponse.ok())
                         } else {
                             call.response.status(HttpStatusCode.InternalServerError)
-                            call.respond(BaseResponse.error())
+                            call.respond(ApiResponse.error())
                         }
                     } else {
                         call.response.status(HttpStatusCode.NotFound)
-                        call.respond(BaseResponse.error())
                     }
                 } catch (e: Exception) {
                     call.response.status(HttpStatusCode.BadRequest)
-                    call.respond(BaseResponse.error(e.message))
                 }
             }
         }
@@ -84,18 +82,16 @@ fun Application.classRoutes(database: CoroutineDatabase) {
 
                         if (updateState) {
                             call.response.status(HttpStatusCode.OK)
-                            call.respond(BaseResponse.success(classroom))
+                            call.respond(ApiResponse.ok())
                         } else {
                             call.response.status(HttpStatusCode.InternalServerError)
-                            call.respond(BaseResponse.error())
+                            call.respond(ApiResponse.error())
                         }
                     } else {
                         call.response.status(HttpStatusCode.NotFound)
-                        call.respond(BaseResponse.error())
                     }
                 } catch (e: Exception) {
                     call.response.status(HttpStatusCode.BadRequest)
-                    call.respond(BaseResponse.error(e.message))
                 }
             }
         }
@@ -107,15 +103,13 @@ fun Application.classRoutes(database: CoroutineDatabase) {
 
                     if (classroom != null) {
                         call.response.status(HttpStatusCode.OK)
-                        call.respond(BaseResponse.success(classroom))
+                        call.respond(ApiResponse.success(classroom))
                     } else {
                         call.response.status(HttpStatusCode.NotFound)
-                        call.respond(BaseResponse.error())
                     }
 
                 } catch (e: Exception) {
                     call.response.status(HttpStatusCode.BadRequest)
-                    call.respond(BaseResponse.error(e.message))
                 }
             }
         }
@@ -124,10 +118,10 @@ fun Application.classRoutes(database: CoroutineDatabase) {
             try {
                 val foundClasses = classes.find().toList()
                 call.response.status(HttpStatusCode.OK)
-                call.respond(BaseResponse.success(foundClasses))
+                call.respond(ApiResponse.success(foundClasses))
             } catch (e: Exception) {
                 call.response.status(HttpStatusCode.InternalServerError)
-                call.respond(BaseResponse.error(e.message))
+                call.respond(ApiResponse.error(e.message))
             }
         }
     }

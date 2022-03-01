@@ -1,6 +1,6 @@
 package com.edumy.routing
 
-import at.favre.lib.crypto.bcrypt.BCrypt
+import com.edumy.base.ApiResponse
 import com.edumy.base.BaseResponse
 import com.edumy.base.JWTConfig
 import com.edumy.data.auth.AuthToken
@@ -16,7 +16,6 @@ import io.ktor.response.*
 import io.ktor.routing.*
 import org.litote.kmongo.coroutine.CoroutineDatabase
 import org.litote.kmongo.eq
-import org.litote.kmongo.json
 
 fun Application.userRoutes(database: CoroutineDatabase) {
 
@@ -29,14 +28,12 @@ fun Application.userRoutes(database: CoroutineDatabase) {
                 user?.let {
                     call.response.status(HttpStatusCode.OK)
                     val authToken = AuthToken(JWTConfig.generateToken(it), JWTConfig.expireTime)
-                    call.respond(BaseResponse.success(authToken))
+                    call.respond(ApiResponse.success(authToken))
                 } ?: run {
                     call.response.status(HttpStatusCode.NotFound)
-                    call.respond(BaseResponse.error())
                 }
             } catch (e: Exception) {
                 call.response.status(HttpStatusCode.BadRequest)
-                call.respond(BaseResponse.error(e.message))
             }
         }
 
@@ -45,10 +42,9 @@ fun Application.userRoutes(database: CoroutineDatabase) {
                 val requestBody = call.receive<UserEntity>()
                 users.insertOne(requestBody).wasAcknowledged()
                 call.response.status(HttpStatusCode.OK)
-                call.respond(BaseResponse.ok())
+                call.respond(ApiResponse.ok())
             } catch (e: Exception) {
                 call.response.status(HttpStatusCode.BadRequest)
-                call.respond(BaseResponse.error(e.message))
             }
         }
 
@@ -59,14 +55,13 @@ fun Application.userRoutes(database: CoroutineDatabase) {
 
                 if (userEntity != null && Bcrypt.verify(authUser.pass, userEntity.pass.toByteArray())) {
                     call.response.status(HttpStatusCode.OK)
-                    call.respond(BaseResponse.ok())
+                    call.respond(ApiResponse.ok())
                 } else {
                     call.response.status(HttpStatusCode.NonAuthoritativeInformation)
-                    call.respond(BaseResponse.error())
+                    call.respond(ApiResponse.error("Invalid User Credentials"))
                 }
             } catch (e: Exception) {
-                call.response.status(HttpStatusCode.BadRequest)
-                call.respond(BaseResponse.error(e.message))
+                call.respond(HttpStatusCode.BadRequest)
             }
         }
 
@@ -78,14 +73,13 @@ fun Application.userRoutes(database: CoroutineDatabase) {
 
                     if (updateResult.wasAcknowledged()) {
                         call.response.status(HttpStatusCode.OK)
-                        call.respond(BaseResponse.success(updateResult.json))
+                        call.respond(ApiResponse.ok())
                     } else {
                         call.response.status(HttpStatusCode.InternalServerError)
-                        call.respond(BaseResponse.error())
+                        call.respond(ApiResponse.error())
                     }
                 } catch (e: Exception) {
                     call.response.status(HttpStatusCode.BadRequest)
-                    call.respond(BaseResponse.error(e.message))
                 }
             }
         }
@@ -94,14 +88,13 @@ fun Application.userRoutes(database: CoroutineDatabase) {
             try {
                 if (users.deleteOne(UserEntity::id eq request.userId).wasAcknowledged()) {
                     call.response.status(HttpStatusCode.OK)
-                    call.respond(BaseResponse.ok())
+                    call.respond(ApiResponse.ok())
                 } else {
-                    call.response.status(HttpStatusCode.InternalServerError)
-                    call.respond(BaseResponse.error())
+                    call.response.status(HttpStatusCode.NotFound)
+                    call.respond(ApiResponse.error())
                 }
             } catch (e: Exception) {
                 call.response.status(HttpStatusCode.BadRequest)
-                call.respond(BaseResponse.error(e.message))
             }
         }
 
@@ -112,14 +105,12 @@ fun Application.userRoutes(database: CoroutineDatabase) {
 
                     if (userEntity != null) {
                         call.response.status(HttpStatusCode.OK)
-                        call.respond(BaseResponse.success(userEntity as User))
+                        call.respond(ApiResponse.success(userEntity as User))
                     } else {
                         call.response.status(HttpStatusCode.NotFound)
-                        call.respond(BaseResponse.error())
                     }
                 } catch (e: Exception) {
-                    call.response.status(HttpStatusCode.InternalServerError)
-                    call.respond(BaseResponse.error())
+                    call.response.status(HttpStatusCode.BadRequest)
                 }
             }
         }
@@ -128,10 +119,9 @@ fun Application.userRoutes(database: CoroutineDatabase) {
             try {
                 val foundUsers = users.find().toList() as List<User>
                 call.response.status(HttpStatusCode.OK)
-                call.respond(foundUsers)
+                call.respond(ApiResponse.success(foundUsers))
             } catch (e: Exception) {
                 call.response.status(HttpStatusCode.BadRequest)
-                call.respond(BaseResponse.error(e.message))
             }
         }
     }

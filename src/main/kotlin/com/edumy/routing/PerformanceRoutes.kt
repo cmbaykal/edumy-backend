@@ -1,6 +1,6 @@
 package com.edumy.routing
 
-import com.edumy.base.BaseResponse
+import com.edumy.base.ApiResponse
 import com.edumy.data.performance.*
 import io.ktor.application.*
 import io.ktor.auth.*
@@ -25,14 +25,13 @@ fun Application.performanceRoutes(database: CoroutineDatabase) {
 
                     if (performances.insertOne(performance).wasAcknowledged()) {
                         call.response.status(HttpStatusCode.OK)
-                        call.respond(BaseResponse.success(performance))
+                        call.respond(ApiResponse.ok())
                     } else {
                         call.response.status(HttpStatusCode.InternalServerError)
-                        call.respond(BaseResponse.error())
+                        call.respond(ApiResponse.error())
                     }
                 } catch (e: Exception) {
                     call.response.status(HttpStatusCode.BadRequest)
-                    call.respond(BaseResponse.error(e.message))
                 }
             }
         }
@@ -42,14 +41,13 @@ fun Application.performanceRoutes(database: CoroutineDatabase) {
                 try {
                     if (performances.deleteOne(Performance::id eq request.performanceId).wasAcknowledged()) {
                         call.response.status(HttpStatusCode.OK)
-                        call.respond(BaseResponse.ok())
+                        call.respond(ApiResponse.ok())
                     } else {
                         call.response.status(HttpStatusCode.InternalServerError)
-                        call.respond(BaseResponse.error())
+                        call.respond(ApiResponse.error())
                     }
                 } catch (e: Exception) {
                     call.response.status(HttpStatusCode.BadRequest)
-                    call.respond(BaseResponse.error(e.message))
                 }
             }
         }
@@ -59,10 +57,10 @@ fun Application.performanceRoutes(database: CoroutineDatabase) {
                 try {
                     val foundPerformances = performances.find(Performance::userId eq request.userId).toList()
                     call.response.status(HttpStatusCode.OK)
-                    call.respond(BaseResponse.success(foundPerformances))
+                    call.respond(ApiResponse.success(foundPerformances))
                 } catch (e: Exception) {
                     call.response.status(HttpStatusCode.InternalServerError)
-                    call.respond(BaseResponse.error(e.message))
+                    call.respond(ApiResponse.error(e.message))
                 }
             }
         }
@@ -71,10 +69,10 @@ fun Application.performanceRoutes(database: CoroutineDatabase) {
             try {
                 val foundPerformances = performances.find().toList()
                 call.response.status(HttpStatusCode.OK)
-                call.respond(BaseResponse.success(foundPerformances))
+                call.respond(ApiResponse.success(foundPerformances))
             } catch (e: Exception) {
                 call.response.status(HttpStatusCode.InternalServerError)
-                call.respond(BaseResponse.error(e.message))
+                call.respond(ApiResponse.error(e.message))
             }
         }
     }

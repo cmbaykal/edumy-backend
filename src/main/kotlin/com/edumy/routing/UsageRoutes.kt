@@ -1,6 +1,6 @@
 package com.edumy.routing
 
-import com.edumy.base.BaseResponse
+import com.edumy.base.ApiResponse
 import com.edumy.data.usage.*
 import com.edumy.data.user.User
 import io.ktor.application.*
@@ -43,23 +43,22 @@ fun Application.usageRoutes(database: CoroutineDatabase) {
 
                         if (updateResult.wasAcknowledged()) {
                             call.response.status(HttpStatusCode.OK)
-                            call.respond(BaseResponse.success(updateResult.json))
+                            call.respond(ApiResponse.ok())
                         } else {
                             call.response.status(HttpStatusCode.InternalServerError)
-                            call.respond(BaseResponse.error())
+                            call.respond(ApiResponse.error())
                         }
                     } else {
                         if (usages.insertOne(usageData).wasAcknowledged()) {
                             call.response.status(HttpStatusCode.OK)
-                            call.respond(BaseResponse.success(usageData))
+                            call.respond(ApiResponse.success(usageData))
                         } else {
                             call.response.status(HttpStatusCode.InternalServerError)
-                            call.respond(BaseResponse.error())
+                            call.respond(ApiResponse.error())
                         }
                     }
                 } catch (e: Exception) {
                     call.response.status(HttpStatusCode.BadRequest)
-                    call.respond(BaseResponse.error(e.message))
                 }
             }
         }
@@ -72,14 +71,12 @@ fun Application.usageRoutes(database: CoroutineDatabase) {
                     if (user != null) {
                         val usageData = usages.findOne(UsageData::userId eq request.userId)
                         call.response.status(HttpStatusCode.OK)
-                        call.respond(BaseResponse.success(usageData ?: UsageData(request.userId, ArrayList())))
+                        call.respond(ApiResponse.success(usageData ?: UsageData(request.userId, ArrayList())))
                     } else {
                         call.response.status(HttpStatusCode.NotFound)
-                        call.respond(BaseResponse.error())
                     }
                 } catch (e: Exception) {
-                    call.response.status(HttpStatusCode.InternalServerError)
-                    call.respond(BaseResponse.error(e.message))
+                    call.response.status(HttpStatusCode.BadRequest)
                 }
             }
         }
@@ -88,14 +85,13 @@ fun Application.usageRoutes(database: CoroutineDatabase) {
             try {
                 if (usages.deleteOne(UsageData::userId eq request.userId).wasAcknowledged()) {
                     call.response.status(HttpStatusCode.OK)
-                    call.respond(BaseResponse.ok())
+                    call.respond(ApiResponse.ok())
                 } else {
                     call.response.status(HttpStatusCode.InternalServerError)
-                    call.respond(BaseResponse.error())
+                    call.respond(ApiResponse.error())
                 }
             } catch (e: Exception) {
                 call.response.status(HttpStatusCode.BadRequest)
-                call.respond(BaseResponse.error(e.message))
             }
         }
 
@@ -103,10 +99,10 @@ fun Application.usageRoutes(database: CoroutineDatabase) {
             try {
                 usages.drop()
                 call.response.status(HttpStatusCode.OK)
-                call.respond(BaseResponse.ok())
+                call.respond(ApiResponse.ok())
             } catch (e: Exception) {
                 call.response.status(HttpStatusCode.InternalServerError)
-                call.respond(BaseResponse.error(e.message))
+                call.respond(ApiResponse.error(e.message))
             }
         }
 
@@ -114,10 +110,10 @@ fun Application.usageRoutes(database: CoroutineDatabase) {
             try {
                 val foundUsages = usages.find().toList()
                 call.response.status(HttpStatusCode.OK)
-                call.respond(BaseResponse.success(foundUsages))
+                call.respond(ApiResponse.success(foundUsages))
             } catch (e: Exception) {
                 call.response.status(HttpStatusCode.InternalServerError)
-                call.respond(BaseResponse.error(e.message))
+                call.respond(ApiResponse.error(e.message))
             }
         }
     }

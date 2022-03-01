@@ -11,5 +11,5 @@ data class AuthToken(
     val token: String,
     @Serializable(with = DateSerializer::class)
     @SerialName("expireTime")
-    val expireTime: Date?,
+    val expireTime: Date?
 )

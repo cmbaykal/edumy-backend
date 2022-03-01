@@ -1,6 +1,6 @@
 package com.edumy.routing
 
-import com.edumy.base.BaseResponse
+import com.edumy.base.ApiResponse
 import com.edumy.data.answer.*
 import com.edumy.util.DateSerializer
 import com.edumy.util.FileType
@@ -56,19 +56,19 @@ fun Application.answerRoutes(database: CoroutineDatabase) {
                                     }
                                 }
                             }
+                            is PartData.BinaryItem -> TODO()
                         }
                     }
 
                     if (answers.insertOne(answer).wasAcknowledged()) {
                         call.response.status(HttpStatusCode.OK)
-                        call.respond(BaseResponse.success(answer))
+                        call.respond(ApiResponse.ok())
                     } else {
                         call.response.status(HttpStatusCode.InternalServerError)
-                        call.respond(BaseResponse.error())
+                        call.respond(ApiResponse.error())
                     }
                 } catch (e: Exception) {
                     call.response.status(HttpStatusCode.BadRequest)
-                    call.respond(BaseResponse.error(e.message))
                 }
             }
         }
@@ -95,18 +95,16 @@ fun Application.answerRoutes(database: CoroutineDatabase) {
 
                         if (answers.deleteOneById(request.answerId).wasAcknowledged()) {
                             call.response.status(HttpStatusCode.OK)
-                            call.respond(BaseResponse.ok())
+                            call.respond(ApiResponse.ok())
                         } else {
                             call.response.status(HttpStatusCode.InternalServerError)
-                            call.respond(BaseResponse.error())
+                            call.respond(ApiResponse.error())
                         }
                     } else {
                         call.response.status(HttpStatusCode.NotFound)
-                        call.respond(BaseResponse.error())
                     }
                 } catch (e: Exception) {
                     call.response.status(HttpStatusCode.BadRequest)
-                    call.respond(BaseResponse.error(e.message))
                 }
             }
         }
@@ -116,10 +114,10 @@ fun Application.answerRoutes(database: CoroutineDatabase) {
                 try {
                     val foundAnswers = answers.find(Answer::questionId eq request.questionId).toList()
                     call.response.status(HttpStatusCode.OK)
-                    call.respond(BaseResponse.success(foundAnswers))
+                    call.respond(ApiResponse.success(foundAnswers))
                 } catch (e: Exception) {
-                    call.response.status(HttpStatusCode.BadRequest)
-                    call.respond(BaseResponse.error(e.message))
+                    call.response.status(HttpStatusCode.InternalServerError)
+                    call.respond(ApiResponse.error(e.message))
                 }
             }
         }
@@ -129,10 +127,10 @@ fun Application.answerRoutes(database: CoroutineDatabase) {
                 try {
                     val foundAnswers = answers.find(Answer::userId eq request.userId).toList()
                     call.response.status(HttpStatusCode.OK)
-                    call.respond(BaseResponse.success(foundAnswers))
+                    call.respond(ApiResponse.success(foundAnswers))
                 } catch (e: Exception) {
-                    call.response.status(HttpStatusCode.BadRequest)
-                    call.respond(BaseResponse.error(e.message))
+                    call.response.status(HttpStatusCode.InternalServerError)
+                    call.respond(ApiResponse.error(e.message))
                 }
             }
         }
@@ -141,10 +139,10 @@ fun Application.answerRoutes(database: CoroutineDatabase) {
             try {
                 val foundAnswers = answers.find().toList()
                 call.response.status(HttpStatusCode.OK)
-                call.respond(BaseResponse.success(foundAnswers))
+                call.respond(ApiResponse.success(foundAnswers))
             } catch (e: Exception) {
-                call.response.status(HttpStatusCode.BadRequest)
-                call.respond(BaseResponse.error(e.message))
+                call.response.status(HttpStatusCode.InternalServerError)
+                call.respond(ApiResponse.error(e.message))
             }
         }
     }

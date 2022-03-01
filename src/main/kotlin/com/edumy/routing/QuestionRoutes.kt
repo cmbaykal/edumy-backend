@@ -1,6 +1,6 @@
 package com.edumy.routing
 
-import com.edumy.base.BaseResponse
+import com.edumy.base.ApiResponse
 import com.edumy.data.answer.Answer
 import com.edumy.data.question.*
 import com.edumy.util.DateSerializer
@@ -54,14 +54,13 @@ fun Application.questionRoutes(database: CoroutineDatabase) {
 
                     if (questions.insertOne(question).wasAcknowledged()) {
                         call.response.status(HttpStatusCode.OK)
-                        call.respond(BaseResponse.success(question))
+                        call.respond(ApiResponse.ok())
                     } else {
                         call.response.status(HttpStatusCode.InternalServerError)
-                        call.respond(BaseResponse.error())
+                        call.respond(ApiResponse.error())
                     }
                 } catch (e: Exception) {
                     call.response.status(HttpStatusCode.BadRequest)
-                    call.respond(BaseResponse.error(e.message))
                 }
             }
         }
@@ -82,30 +81,17 @@ fun Application.questionRoutes(database: CoroutineDatabase) {
 
                         if (questions.deleteOneById(request.questionId).wasAcknowledged()) {
                             call.response.status(HttpStatusCode.OK)
-                            call.respond(BaseResponse.ok())
+                            call.respond(ApiResponse.ok())
                         } else {
                             call.response.status(HttpStatusCode.InternalServerError)
-                            call.respond(BaseResponse.error())
+                            call.respond(ApiResponse.error())
                         }
                     } else {
                         call.respond(HttpStatusCode.NotFound)
-                        call.respond(BaseResponse.error())
                     }
                 } catch (e: Exception) {
                     call.response.status(HttpStatusCode.BadRequest)
-                    call.respond(BaseResponse.error(e.message))
                 }
-            }
-        }
-
-        get<AllQuestions> {
-            try {
-                val foundQuestions = questions.find().toList()
-                call.response.status(HttpStatusCode.OK)
-                call.respond(BaseResponse.success(foundQuestions))
-            } catch (e: Exception) {
-                call.respond(HttpStatusCode.InternalServerError)
-                call.respond(BaseResponse.error(e.message))
             }
         }
 
@@ -114,10 +100,10 @@ fun Application.questionRoutes(database: CoroutineDatabase) {
                 try {
                     val foundQuestions = questions.find(Question::id eq request.questionId).toList()
                     call.response.status(HttpStatusCode.OK)
-                    call.respond(BaseResponse.success(foundQuestions))
+                    call.respond(ApiResponse.success(foundQuestions))
                 } catch (e: Exception) {
                     call.respond(HttpStatusCode.InternalServerError)
-                    call.respond(BaseResponse.error(e.message))
+                    call.respond(ApiResponse.error(e.message))
                 }
             }
         }
@@ -127,10 +113,10 @@ fun Application.questionRoutes(database: CoroutineDatabase) {
                 try {
                     val foundQuestions = questions.find(Question::classId eq request.classId).toList()
                     call.response.status(HttpStatusCode.OK)
-                    call.respond(BaseResponse.success(foundQuestions))
+                    call.respond(ApiResponse.success(foundQuestions))
                 } catch (e: Exception) {
                     call.respond(HttpStatusCode.InternalServerError)
-                    call.respond(BaseResponse.error(e.message))
+                    call.respond(ApiResponse.error(e.message))
                 }
             }
         }
@@ -140,11 +126,22 @@ fun Application.questionRoutes(database: CoroutineDatabase) {
                 try {
                     val foundQuestions = questions.find(Question::userId eq request.userId).toList()
                     call.response.status(HttpStatusCode.OK)
-                    call.respond(BaseResponse.success(foundQuestions))
+                    call.respond(ApiResponse.success(foundQuestions))
                 } catch (e: Exception) {
                     call.respond(HttpStatusCode.InternalServerError)
-                    call.respond(BaseResponse.error(e.message))
+                    call.respond(ApiResponse.error(e.message))
                 }
+            }
+        }
+
+        get<AllQuestions> {
+            try {
+                val foundQuestions = questions.find().toList()
+                call.response.status(HttpStatusCode.OK)
+                call.respond(ApiResponse.success(foundQuestions))
+            } catch (e: Exception) {
+                call.respond(HttpStatusCode.InternalServerError)
+                call.respond(ApiResponse.error(e.message))
             }
         }
     }
