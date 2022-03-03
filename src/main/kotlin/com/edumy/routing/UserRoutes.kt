@@ -55,7 +55,7 @@ fun Application.userRoutes(database: CoroutineDatabase) {
 
                 if (userEntity != null && Bcrypt.verify(authUser.pass, userEntity.pass.toByteArray())) {
                     call.response.status(HttpStatusCode.OK)
-                    call.respond(ApiResponse.ok())
+                    call.respond(ApiResponse.success(userEntity as User))
                 } else {
                     call.response.status(HttpStatusCode.NonAuthoritativeInformation)
                     call.respond(ApiResponse.error("Invalid User Credentials"))

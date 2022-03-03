@@ -9,7 +9,7 @@ fun Application.configureStatusPages() {
     install(StatusPages) {
         status(HttpStatusCode.Unauthorized) { it ->
             call.response.status(HttpStatusCode.Unauthorized)
-            call.respond(ApiResponse.error("Unauthorized User" + it.value))
+            call.respond(ApiResponse.error("Unauthorized User " + it.value))
         }
     }
 }
