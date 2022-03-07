@@ -14,6 +14,8 @@ data class Classroom(
     val lesson: String,
     @SerialName("name")
     val name: String,
+    @SerialName("creatorId")
+    val creatorId: String,
     @SerialName("users")
     val users: MutableList<User>? = ArrayList()
 )

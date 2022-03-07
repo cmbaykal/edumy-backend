@@ -3,7 +3,6 @@ package com.edumy.data.user
 import com.edumy.util.DateSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
 import org.bson.codecs.pojo.annotations.BsonId
 import org.bson.types.ObjectId
 import java.util.*
@@ -23,6 +22,8 @@ open class User(
     val name: String? = null,
     @SerialName("bio")
     val bio: String? = null,
+    @SerialName("classes")
+    val classes: MutableList<String>? = ArrayList()
 )
 
 @Serializable

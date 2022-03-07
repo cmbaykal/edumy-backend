@@ -14,5 +14,8 @@ data class LeaveClass(val classId: String, val userId: String)
 @Location("/class/info")
 data class ClassInfo(val classId: String)
 
+@Location("/class/user")
+data class UserClassrooms(val userId: String)
+
 @Location("/class/all")
 class AllClasses
