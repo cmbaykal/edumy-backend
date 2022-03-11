@@ -1,6 +1,5 @@
 package com.edumy.data.classroom
 
-import com.edumy.data.user.User
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.bson.codecs.pojo.annotations.BsonId
@@ -17,5 +16,14 @@ data class Classroom(
     @SerialName("creatorId")
     val creatorId: String,
     @SerialName("users")
-    val users: MutableList<User>? = ArrayList()
+    val users: MutableList<ClassUser>? = ArrayList()
+)
+
+@Serializable
+data class ClassUser(
+    val id: String,
+    @SerialName("role")
+    val role: String? = null,
+    @SerialName("name")
+    val name: String? = null
 )

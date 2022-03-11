@@ -1,7 +1,6 @@
 package com.edumy.routing
 
 import com.edumy.base.ApiResponse
-import com.edumy.base.BaseResponse
 import com.edumy.base.JWTConfig
 import com.edumy.data.auth.AuthToken
 import com.edumy.data.user.*
@@ -51,14 +50,18 @@ fun Application.userRoutes(database: CoroutineDatabase) {
         post<LoginUser> {
             try {
                 val authUser = call.receive<UserCredentials>()
-                val userEntity = users.findOne(User::mail eq authUser.mail)
+                val user = users.findOne(User::mail eq authUser.mail)
 
-                if (userEntity != null && Bcrypt.verify(authUser.pass, userEntity.pass.toByteArray())) {
-                    call.response.status(HttpStatusCode.OK)
-                    call.respond(ApiResponse.success(userEntity as User))
-                } else {
-                    call.response.status(HttpStatusCode.NonAuthoritativeInformation)
-                    call.respond(ApiResponse.error("Invalid User Credentials"))
+                user?.pass?.let {
+                    if (Bcrypt.verify(authUser.pass, it.toByteArray())) {
+                        call.response.status(HttpStatusCode.OK)
+                        call.respond(ApiResponse.success(user as User))
+                    } else {
+                        call.response.status(HttpStatusCode.NonAuthoritativeInformation)
+                        call.respond(ApiResponse.error("Invalid User Credentials"))
+                    }
+                } ?: run {
+                    call.response.status(HttpStatusCode.NotFound)
                 }
             } catch (e: Exception) {
                 call.respond(HttpStatusCode.BadRequest)

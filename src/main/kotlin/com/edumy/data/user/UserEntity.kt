@@ -29,7 +29,7 @@ open class User(
 @Serializable
 data class UserEntity(
     @SerialName("pass")
-    val pass: String
+    var pass: String?
 ) : User()
 
 @Serializable

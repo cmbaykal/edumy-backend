@@ -22,19 +22,24 @@ fun Application.classRoutes(database: CoroutineDatabase) {
     val users = database.getCollection<UserEntity>()
     val classes = database.getCollection<Classroom>()
 
-    suspend fun updateClassAndUser(user: User, classroom: Classroom, remove: Boolean = false): Boolean {
-        val userClasses = (user.classes ?: ArrayList()).also {
+    suspend fun updateClassAndUser(user: UserEntity, classroom: Classroom, remove: Boolean = false): Boolean {
+        val userClasses: MutableList<String> = (user.classes ?: ArrayList()).also {
             if (remove) {
                 it.remove(classroom.id)
             } else {
                 it.add(classroom.id)
             }
         }
-        val classUsers = (classroom.users ?: ArrayList()).also {
+        val classUser = ClassUser(
+            id = user.id,
+            role = user.role,
+            name = user.name
+        )
+        val classUsers: MutableList<ClassUser> = (classroom.users ?: ArrayList()).also {
             if (remove) {
-                it.remove(user)
+                it.remove(classUser)
             } else {
-                it.add(user)
+                it.add(classUser)
             }
         }
 
