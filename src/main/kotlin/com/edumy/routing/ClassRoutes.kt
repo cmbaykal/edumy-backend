@@ -74,7 +74,7 @@ fun Application.classRoutes(database: CoroutineDatabase) {
             post<AssignUser> { request ->
                 try {
                     val classroom = classes.findOne(Classroom::id eq request.classId)
-                    val user = users.findOne(User::id eq request.userId)
+                    val user = users.findOne(User::mail eq request.userMail)
 
                     if (classroom != null && user != null) {
                         if (updateClassAndUser(user, classroom)) {
@@ -98,9 +98,33 @@ fun Application.classRoutes(database: CoroutineDatabase) {
             post<LeaveClass> { request ->
                 try {
                     val classroom = classes.findOne(Classroom::id eq request.classId)
-                    val user = users.findOne(User::id eq request.userId)
+                    val user = users.findOne(User::mail eq request.userMail)
 
                     if (classroom != null && user != null && updateClassAndUser(user, classroom, true)) {
+                        call.response.status(HttpStatusCode.OK)
+                        call.respond(ApiResponse.ok())
+                    } else {
+                        call.response.status(HttpStatusCode.InternalServerError)
+                        call.respond(ApiResponse.error())
+                    }
+                } catch (e: Exception) {
+                    call.response.status(HttpStatusCode.BadRequest)
+                }
+            }
+        }
+
+        authenticate {
+            post<DeleteClass> { request ->
+                try {
+                    val deleteProcess = classes.deleteOne(Classroom::id eq request.classId)
+                    val user = users.findOne(User::mail eq request.userMail)
+
+                    if (user != null && deleteProcess.wasAcknowledged()) {
+                        val userClasses: MutableList<String> = (user.classes ?: ArrayList()).also {
+                            it.remove(request.classId)
+                        }
+                        users.updateOne(User::id eq user.id, setValue(User::classes, userClasses))
+
                         call.response.status(HttpStatusCode.OK)
                         call.respond(ApiResponse.ok())
                     } else {

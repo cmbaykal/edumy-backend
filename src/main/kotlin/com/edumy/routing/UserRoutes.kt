@@ -61,7 +61,8 @@ fun Application.userRoutes(database: CoroutineDatabase) {
                         call.respond(ApiResponse.error("Invalid User Credentials"))
                     }
                 } ?: run {
-                    call.response.status(HttpStatusCode.NotFound)
+                    call.response.status(HttpStatusCode.NonAuthoritativeInformation)
+                    call.respond(ApiResponse.error("Invalid User Credentials"))
                 }
             } catch (e: Exception) {
                 call.respond(HttpStatusCode.BadRequest)
@@ -69,10 +70,15 @@ fun Application.userRoutes(database: CoroutineDatabase) {
         }
 
         authenticate {
-            post<UpdateUser> { request ->
+            post<UpdateUser> {
                 try {
-                    val updateUser = call.receive<User>()
-                    val updateResult = users.updateOneById(request.userId, updateUser, updateOnlyNotNullProperties = true)
+                    val updateCredentials = call.receive<UpdateCredentials>()
+                    val updateUser = User(
+                        id = updateCredentials.userId,
+                        name = updateCredentials.name,
+                        bio = updateCredentials.bio
+                    )
+                    val updateResult = users.updateOneById(updateCredentials.userId, updateUser, updateOnlyNotNullProperties = true)
 
                     if (updateResult.wasAcknowledged()) {
                         call.response.status(HttpStatusCode.OK)
@@ -83,6 +89,35 @@ fun Application.userRoutes(database: CoroutineDatabase) {
                     }
                 } catch (e: Exception) {
                     call.response.status(HttpStatusCode.BadRequest)
+                }
+            }
+        }
+
+        authenticate {
+            post<ChangePassword> {
+                try {
+                    val passwordCredentials = call.receive<PasswordCredentials>()
+                    val user = users.findOne(User::id eq passwordCredentials.userId)
+                    user?.pass?.let {
+                        if (Bcrypt.verify(passwordCredentials.oldPass, it.toByteArray())) {
+                            user.pass = passwordCredentials.newPass
+                            val updateResult = users.updateOneById(passwordCredentials.userId, user, updateOnlyNotNullProperties = true)
+
+                            if (updateResult.wasAcknowledged()) {
+                                call.response.status(HttpStatusCode.OK)
+                                call.respond(ApiResponse.success(user as User))
+                            } else {
+                                call.response.status(HttpStatusCode.InternalServerError)
+                                call.respond(ApiResponse.error())
+                            }
+                        } else {
+                            call.response.status(HttpStatusCode.NonAuthoritativeInformation)
+                            call.respond(ApiResponse.error("Invalid User Credentials"))
+                        }
+                    }
+                } catch (e: Exception) {
+                    call.response.status(HttpStatusCode.BadRequest)
+                    print(e)
                 }
             }
         }

@@ -12,7 +12,10 @@ class RegisterUser
 class LoginUser
 
 @Location("/user/update")
-data class UpdateUser(val userId: String)
+class UpdateUser
+
+@Location("/user/changePassword")
+class ChangePassword
 
 @Location("/user/info")
 data class UserInfo(val userId: String)

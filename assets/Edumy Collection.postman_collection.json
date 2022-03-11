@@ -1,0 +1,636 @@
+{
+	"info": {
+		"_postman_id": "638735da-0c4b-4500-851f-59a73901b317",
+		"name": "Edumy Collection",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/user/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/user/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/user/update",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"update"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "User Information",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/user/info",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"info"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/user/delete",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"delete"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "All Users",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/user/all",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"all"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Classrooms",
+			"item": [
+				{
+					"name": "Add Classroom",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/class/add",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"class",
+								"add"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Assign User",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/class/assign",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"class",
+								"assign"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Leave Classroom",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/class/leave",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"class",
+								"leave"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Classroom Information",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/class/info",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"class",
+								"info"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "All Classrooms",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/class/all",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"class",
+								"all"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Questions",
+			"item": [
+				{
+					"name": "Add Question",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/question/add",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"question",
+								"add"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Question",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/question/delete",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"question",
+								"delete"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Question Information",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/question/info",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"question",
+								"info"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Classroom Questions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/question/class",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"question",
+								"class"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "User Questions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/question/user",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"question",
+								"user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "All Questions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/question/all",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"question",
+								"all"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Answers",
+			"item": [
+				{
+					"name": "Add Answer",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/answer/add",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"answer",
+								"add"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Answer",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/answer/delete",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"answer",
+								"delete"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Questions Answers",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/answer/question",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"answer",
+								"question"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "User Answers",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/answer/user",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"answer",
+								"user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "All Answers",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/answer/all",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"answer",
+								"all"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Performances",
+			"item": [
+				{
+					"name": "Add Performance",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/performance/add",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"performance",
+								"add"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Performance",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/performance/delete",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"performance",
+								"delete"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "User Performances",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/performance/user",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"performance",
+								"user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "All Performances",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/performance/all",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"performance",
+								"all"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Usages",
+			"item": [
+				{
+					"name": "Add Usage",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/usage/add",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"usage",
+								"add"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "User Usages",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/usage/:userId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"usage",
+								":userId"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": null
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User Usages",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/usage/delete?userId=",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"usage",
+								"delete"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete All Usages",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/usage/delete",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"usage",
+								"delete"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "All Usages",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/usage/all",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"usage",
+								"all"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "localhost:8080",
+			"type": "string"
+		}
+	]
+}

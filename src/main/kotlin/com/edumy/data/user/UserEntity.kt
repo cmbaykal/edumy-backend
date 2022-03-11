@@ -23,7 +23,7 @@ open class User(
     @SerialName("bio")
     val bio: String? = null,
     @SerialName("classes")
-    val classes: MutableList<String>? = ArrayList()
+    val classes: MutableList<String>? = null
 )
 
 @Serializable
@@ -40,3 +40,22 @@ data class UserCredentials(
     val pass: String
 )
 
+@Serializable
+data class UpdateCredentials(
+    @SerialName("userId")
+    val userId: String,
+    @SerialName("name")
+    val name: String? = null,
+    @SerialName("bio")
+    val bio: String? = null,
+)
+
+@Serializable
+data class PasswordCredentials(
+    @SerialName("userId")
+    val userId: String,
+    @SerialName("oldPass")
+    val oldPass: String,
+    @SerialName("newPass")
+    val newPass: String,
+)
