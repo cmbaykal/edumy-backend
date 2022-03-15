@@ -2,7 +2,9 @@ package com.edumy.routing
 
 import com.edumy.base.ApiResponse
 import com.edumy.data.answer.Answer
+import com.edumy.data.classroom.Classroom
 import com.edumy.data.question.*
+import com.edumy.data.user.User
 import com.edumy.util.DateSerializer
 import io.ktor.application.*
 import io.ktor.auth.*
@@ -13,14 +15,16 @@ import io.ktor.locations.post
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.routing
+import org.litote.kmongo.*
 import org.litote.kmongo.coroutine.CoroutineDatabase
-import org.litote.kmongo.eq
+import org.litote.kmongo.coroutine.aggregate
 import java.io.File
 import java.util.*
 
 fun Application.questionRoutes(database: CoroutineDatabase) {
 
     val questions = database.getCollection<Question>()
+    val classes = database.getCollection<Classroom>()
 
     routing {
         authenticate {
@@ -33,10 +37,9 @@ fun Application.questionRoutes(database: CoroutineDatabase) {
                         when (part) {
                             is PartData.FormItem -> {
                                 when (part.name) {
-                                    "classId" -> question.classId = part.value
                                     "userId" -> question.userId = part.value
                                     "lesson" -> question.lesson = part.value
-                                    "question" -> question.question = part.value
+                                    "description" -> question.description = part.value
                                     "date" -> question.date = DateSerializer.parse(part.value)
                                 }
                             }
@@ -102,7 +105,7 @@ fun Application.questionRoutes(database: CoroutineDatabase) {
                     call.response.status(HttpStatusCode.OK)
                     call.respond(ApiResponse.success(foundQuestions))
                 } catch (e: Exception) {
-                    call.respond(HttpStatusCode.InternalServerError)
+                    call.response.status(HttpStatusCode.InternalServerError)
                     call.respond(ApiResponse.error(e.message))
                 }
             }
@@ -111,11 +114,23 @@ fun Application.questionRoutes(database: CoroutineDatabase) {
         authenticate {
             get<ClassQuestions> { request ->
                 try {
-                    val foundQuestions = questions.find(Question::classId eq request.classId).toList()
-                    call.response.status(HttpStatusCode.OK)
-                    call.respond(ApiResponse.success(foundQuestions))
+                    val classroom = classes.findOne(Classroom::id eq request.classId)
+                    classroom?.let {
+                        val foundQuestions = questions.aggregate<Question>(
+                            match(
+                                Question::userId `in` it.users.toList(),
+                                Question::lesson eq it.lesson
+                            ),
+                            skip(request.limit * request.page),
+                            limit(request.limit)
+                        ).toList()
+                        call.response.status(HttpStatusCode.OK)
+                        call.respond(ApiResponse.success(foundQuestions))
+                    } ?: run {
+                        call.respond(HttpStatusCode.NotFound)
+                    }
                 } catch (e: Exception) {
-                    call.respond(HttpStatusCode.InternalServerError)
+                    call.response.status(HttpStatusCode.InternalServerError)
                     call.respond(ApiResponse.error(e.message))
                 }
             }
@@ -124,11 +139,32 @@ fun Application.questionRoutes(database: CoroutineDatabase) {
         authenticate {
             get<UserQuestions> { request ->
                 try {
-                    val foundQuestions = questions.find(Question::userId eq request.userId).toList()
+                    val foundQuestions = questions
+                        .find(Question::userId eq request.userId)
+                        .skip(request.limit * request.page)
+                        .limit(request.limit)
+                        .toList()
                     call.response.status(HttpStatusCode.OK)
                     call.respond(ApiResponse.success(foundQuestions))
                 } catch (e: Exception) {
-                    call.respond(HttpStatusCode.InternalServerError)
+                    call.response.status(HttpStatusCode.InternalServerError)
+                    call.respond(ApiResponse.error(e.message))
+                }
+            }
+        }
+
+        authenticate {
+            get<QuestionsFeed> { request ->
+                try {
+                    val feedQuestions = questions
+                        .find()
+                        .skip(request.limit * request.page)
+                        .limit(request.limit)
+                        .toList()
+                    call.response.status(HttpStatusCode.OK)
+                    call.respond(ApiResponse.success(feedQuestions))
+                } catch (e: Exception) {
+                    call.response.status(HttpStatusCode.InternalServerError)
                     call.respond(ApiResponse.error(e.message))
                 }
             }
@@ -140,7 +176,7 @@ fun Application.questionRoutes(database: CoroutineDatabase) {
                 call.response.status(HttpStatusCode.OK)
                 call.respond(ApiResponse.success(foundQuestions))
             } catch (e: Exception) {
-                call.respond(HttpStatusCode.InternalServerError)
+                call.response.status(HttpStatusCode.InternalServerError)
                 call.respond(ApiResponse.error(e.message))
             }
         }

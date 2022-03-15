@@ -4,6 +4,7 @@ import com.edumy.base.ApiResponse
 import com.edumy.data.classroom.*
 import com.edumy.data.user.User
 import com.edumy.data.user.UserEntity
+import com.edumy.data.user.UserResult
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.http.*
@@ -12,10 +13,9 @@ import io.ktor.locations.post
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
-import org.litote.kmongo.MongoOperator
+import org.litote.kmongo.*
 import org.litote.kmongo.coroutine.CoroutineDatabase
-import org.litote.kmongo.eq
-import org.litote.kmongo.setValue
+import org.litote.kmongo.coroutine.aggregate
 
 fun Application.classRoutes(database: CoroutineDatabase) {
 
@@ -30,16 +30,11 @@ fun Application.classRoutes(database: CoroutineDatabase) {
                 it.add(classroom.id)
             }
         }
-        val classUser = ClassUser(
-            id = user.id,
-            role = user.role,
-            name = user.name
-        )
-        val classUsers: MutableList<ClassUser> = (classroom.users ?: ArrayList()).also {
+        val classUsers: MutableList<String> = (classroom.users).also {
             if (remove) {
-                it.remove(classUser)
+                it.remove(user.id)
             } else {
-                it.add(classUser)
+                it.add(user.id)
             }
         }
 
@@ -140,18 +135,44 @@ fun Application.classRoutes(database: CoroutineDatabase) {
         authenticate {
             post<UserClassrooms> { request ->
                 try {
-                    val user = users.findOne(User::id eq request.userId)
-                    val foundClasses: MutableList<Classroom> = mutableListOf()
-                    user?.classes?.let { classList ->
-                        classList.forEach { classId ->
-                            val classroom = classes.findOne(Classroom::id eq classId)
-                            classroom?.let {
-                                foundClasses.add(it)
-                            }
-                        }
+                    val foundClasses = classes.aggregate<Classroom>(
+                        match(
+                            Classroom::users contains request.userId
+                        ),
+                        sort(
+                            ascending(
+                                Classroom::name
+                            )
+                        )
+                    ).toList()
+
+                    val result = mutableListOf<ClassroomResult>()
+
+                    foundClasses.forEach {
+                        val classUsers = users.aggregate<User>(
+                            match(
+                                User::classes contains it.id
+                            ),
+                            project(
+                                exclude(
+                                    User::classes
+                                )
+                            )
+                        ).toList()
+                        result.add(
+                            ClassroomResult(
+                                id = it.id,
+                                lesson = it.lesson,
+                                name = it.name,
+                                creatorId = it.creatorId,
+                                users = classUsers
+                            )
+                        )
                     }
+
+
                     call.response.status(HttpStatusCode.OK)
-                    call.respond(ApiResponse.success(foundClasses))
+                    call.respond(ApiResponse.success(result))
                 } catch (e: Exception) {
                     call.response.status(HttpStatusCode.InternalServerError)
                     call.respond(ApiResponse.error(e.message))
@@ -163,11 +184,28 @@ fun Application.classRoutes(database: CoroutineDatabase) {
             get<ClassInfo> { request ->
                 try {
                     val classroom = classes.findOne(Classroom::id eq request.classId)
+                    classroom?.let {
+                        val classUsers = users.aggregate<User>(
+                            match(
+                                User::classes contains it.id
+                            ),
+                            project(
+                                exclude(
+                                    User::classes
+                                )
+                            )
+                        ).toList()
 
-                    if (classroom != null) {
+                        val result = ClassroomResult(
+                            id = it.id,
+                            lesson = it.lesson,
+                            name = it.name,
+                            creatorId = it.creatorId,
+                            users = classUsers
+                        )
                         call.response.status(HttpStatusCode.OK)
-                        call.respond(ApiResponse.success(classroom))
-                    } else {
+                        call.respond(ApiResponse.success(result))
+                    } ?: run {
                         call.response.status(HttpStatusCode.NotFound)
                     }
 
