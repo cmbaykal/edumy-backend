@@ -33,15 +33,6 @@ data class UserEntity(
 ) : User()
 
 @Serializable
-data class UserResult(
-    val id: String,
-    @SerialName("role")
-    val role: String? = null,
-    @SerialName("name")
-    val name: String? = null
-)
-
-@Serializable
 data class UserCredentials(
     @SerialName("mail")
     val mail: String,

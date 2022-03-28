@@ -6,13 +6,19 @@ import io.ktor.locations.*
 class AddAnswer
 
 @Location("answer/delete")
-data class DeleteAnswer(val answerId:String)
+data class DeleteAnswer(val answerId: String)
+
+@Location("answer/upvote")
+data class UpVoteAnswer(val answerId: String)
+
+@Location("answer/downvote")
+data class DownVoteAnswer(val answerId: String)
 
 @Location("answer/question")
-data class QuestionAnswers(val questionId:String)
+data class QuestionAnswers(val questionId: String)
 
 @Location("answer/user")
-data class UserAnswers(val userId:String)
+data class UserAnswers(val userId: String)
 
 @Location("answer/all")
 class AllAnswers

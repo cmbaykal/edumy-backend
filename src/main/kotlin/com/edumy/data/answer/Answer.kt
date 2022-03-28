@@ -15,13 +15,17 @@ data class Answer(
     var questionId: String? = null,
     @SerialName("userId")
     var userId: String? = null,
-    @SerialName("text")
-    var text: String? = null,
+    @SerialName("description")
+    var description: String? = null,
     @Serializable(with = DateSerializer::class)
     @SerialName("date")
     var date: Date? = null,
     @SerialName("image")
     var image: String? = null,
     @SerialName("video")
-    var video: String? = null
+    var video: String? = null,
+    @SerialName("upVote")
+    var upVote: Int = 0,
+    @SerialName("downVote")
+    var downVote: Int = 0
 )

@@ -1,5 +1,6 @@
 package com.edumy.data.question
 
+import com.edumy.data.user.User
 import com.edumy.util.DateSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -23,3 +24,21 @@ data class Question(
     @SerialName("image")
     var image: String? = null
 )
+
+@Serializable
+data class QuestionInformation(
+    @SerialName("id")
+    val id: String,
+    @SerialName("user")
+    var user: User? = null,
+    @SerialName("lesson")
+    var lesson: String? = null,
+    @SerialName("description")
+    var description: String? = null,
+    @Serializable(with = DateSerializer::class)
+    @SerialName("date")
+    var date: Date? = null,
+    @SerialName("image")
+    var image: String? = null
+)
+

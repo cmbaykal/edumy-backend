@@ -37,6 +37,7 @@ fun Application.answerRoutes(database: CoroutineDatabase) {
                                 when (part.name) {
                                     "questionId" -> answer.questionId = part.value
                                     "userId" -> answer.userId = part.value
+                                    "description" -> answer.description = part.value
                                     "date" -> answer.date = DateSerializer.parse(part.value)
                                 }
                             }
@@ -49,10 +50,10 @@ fun Application.answerRoutes(database: CoroutineDatabase) {
 
                                 when (type) {
                                     FileType.VideoMP4 -> {
-                                        answer.video = "http://0.0.0.0:8080/video/$fileName"
+                                        answer.video = fileName
                                     }
                                     else -> {
-                                        answer.image = "http://0.0.0.0:8080/image/$fileName"
+                                        answer.image = fileName
                                     }
                                 }
                             }
@@ -105,6 +106,44 @@ fun Application.answerRoutes(database: CoroutineDatabase) {
                     }
                 } catch (e: Exception) {
                     call.response.status(HttpStatusCode.BadRequest)
+                }
+            }
+        }
+
+        authenticate {
+            post<UpVoteAnswer> { request ->
+                val answer = answers.findOne(Answer::id eq request.answerId)
+                answer?.let {
+                    it.upVote += 1
+                    val updateResult = answers.updateOneById(it.id, it, updateOnlyNotNullProperties = true)
+                    if(updateResult.wasAcknowledged()){
+                        call.response.status(HttpStatusCode.OK)
+                        call.respond(ApiResponse.ok())
+                    }else{
+                        call.response.status(HttpStatusCode.InternalServerError)
+                        call.respond(ApiResponse.error())
+                    }
+                } ?: run {
+                    call.response.status(HttpStatusCode.NotFound)
+                }
+            }
+        }
+
+        authenticate {
+            post<DownVoteAnswer> { request ->
+                val answer = answers.findOne(Answer::id eq request.answerId)
+                answer?.let {
+                    it.downVote += 1
+                    val updateResult = answers.updateOneById(it.id, it, updateOnlyNotNullProperties = true)
+                    if(updateResult.wasAcknowledged()){
+                        call.response.status(HttpStatusCode.OK)
+                        call.respond(ApiResponse.ok())
+                    }else{
+                        call.response.status(HttpStatusCode.InternalServerError)
+                        call.respond(ApiResponse.error())
+                    }
+                } ?: run {
+                    call.response.status(HttpStatusCode.NotFound)
                 }
             }
         }

@@ -5,6 +5,7 @@ import com.edumy.data.answer.Answer
 import com.edumy.data.classroom.Classroom
 import com.edumy.data.question.*
 import com.edumy.data.user.User
+import com.edumy.data.user.UserEntity
 import com.edumy.util.DateSerializer
 import io.ktor.application.*
 import io.ktor.auth.*
@@ -25,6 +26,7 @@ fun Application.questionRoutes(database: CoroutineDatabase) {
 
     val questions = database.getCollection<Question>()
     val classes = database.getCollection<Classroom>()
+    val users = database.getCollection<UserEntity>()
 
     routing {
         authenticate {
@@ -49,7 +51,7 @@ fun Application.questionRoutes(database: CoroutineDatabase) {
                                 val fileBytes = part.streamProvider().readBytes()
                                 File("uploads/image/$fileName").writeBytes(fileBytes)
 
-                                question.image = "http://0.0.0.0:8080/image/$fileName"
+                                question.image = fileName
                             }
                             is PartData.BinaryItem -> TODO()
                         }
@@ -101,9 +103,27 @@ fun Application.questionRoutes(database: CoroutineDatabase) {
         authenticate {
             get<QuestionInfo> { request ->
                 try {
-                    val foundQuestions = questions.find(Question::id eq request.questionId).toList()
-                    call.response.status(HttpStatusCode.OK)
-                    call.respond(ApiResponse.success(foundQuestions))
+                    val foundQuestion = questions.findOne(Question::id eq request.questionId)
+                    foundQuestion?.let {
+                        val user = users.findOne(User::id eq it.userId)
+                        val result = questions.aggregate<QuestionInformation>(
+                            match(
+                                Question::id eq request.questionId
+                            ),
+                            project(
+                                QuestionInformation::id from Question::id,
+                                QuestionInformation::user from user,
+                                QuestionInformation::lesson from Question::lesson,
+                                QuestionInformation::description from Question::description,
+                                QuestionInformation::date from Question::date,
+                                QuestionInformation::image from Question::image
+                            )
+                        ).first()
+                        call.response.status(HttpStatusCode.OK)
+                        call.respond(ApiResponse.success(result))
+                    } ?: run {
+                        call.respond(HttpStatusCode.NotFound)
+                    }
                 } catch (e: Exception) {
                     call.response.status(HttpStatusCode.InternalServerError)
                     call.respond(ApiResponse.error(e.message))

@@ -4,7 +4,6 @@ import com.edumy.base.ApiResponse
 import com.edumy.data.classroom.*
 import com.edumy.data.user.User
 import com.edumy.data.user.UserEntity
-import com.edumy.data.user.UserResult
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.http.*
