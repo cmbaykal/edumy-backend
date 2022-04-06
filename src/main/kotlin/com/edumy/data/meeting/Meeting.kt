@@ -18,6 +18,8 @@ data class Meeting(
     val creatorId:String,
     @SerialName("lesson")
     val lesson:String,
+    @SerialName("description")
+    val description:String,
     @SerialName("duration")
     val duration:Int,
     @Serializable(with = DateSerializer::class)
@@ -33,6 +35,8 @@ data class MeetingResult(
     var user: User? = null,
     @SerialName("lesson")
     val lesson:String,
+    @SerialName("description")
+    val description:String,
     @SerialName("duration")
     val duration:Int,
     @Serializable(with = DateSerializer::class)
