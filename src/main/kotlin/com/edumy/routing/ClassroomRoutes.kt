@@ -169,7 +169,6 @@ fun Application.classRoutes(database: CoroutineDatabase) {
                         )
                     }
 
-
                     call.response.status(HttpStatusCode.OK)
                     call.respond(ApiResponse.success(result))
                 } catch (e: Exception) {
@@ -207,7 +206,6 @@ fun Application.classRoutes(database: CoroutineDatabase) {
                     } ?: run {
                         call.response.status(HttpStatusCode.NotFound)
                     }
-
                 } catch (e: Exception) {
                     call.response.status(HttpStatusCode.BadRequest)
                 }

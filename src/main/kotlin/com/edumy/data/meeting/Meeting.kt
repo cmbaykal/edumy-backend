@@ -1,12 +1,41 @@
 package com.edumy.data.meeting
 
+import com.edumy.data.user.User
+import com.edumy.util.DateSerializer
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import org.bson.codecs.pojo.annotations.BsonId
+import org.bson.types.ObjectId
 import java.util.*
 
+@Serializable
 data class Meeting(
-    val id:Int,
-    val classId:Int,
-    val userId:Int,
+    @BsonId
+    val id: String = ObjectId().toString(),
+    @SerialName("classId")
+    val classId:String,
+    @SerialName("creatorId")
+    val creatorId:String,
+    @SerialName("lesson")
     val lesson:String,
+    @SerialName("duration")
     val duration:Int,
-    val time:Date
+    @Serializable(with = DateSerializer::class)
+    @SerialName("date")
+    val date:Date
+)
+
+@Serializable
+data class MeetingResult(
+    @SerialName("id")
+    val id: String,
+    @SerialName("user")
+    var user: User? = null,
+    @SerialName("lesson")
+    val lesson:String,
+    @SerialName("duration")
+    val duration:Int,
+    @Serializable(with = DateSerializer::class)
+    @SerialName("date")
+    val date:Date
 )

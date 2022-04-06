@@ -47,4 +47,5 @@ fun Application.configureRouting(database: CoroutineDatabase) {
     questionRoutes(database)
     answerRoutes(database)
     studyRoutes(database)
+    meetingRoutes(database)
 }
