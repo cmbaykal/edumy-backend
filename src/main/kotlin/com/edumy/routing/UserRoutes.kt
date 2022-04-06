@@ -137,7 +137,7 @@ fun Application.userRoutes(database: CoroutineDatabase) {
         }
 
         authenticate {
-            get<UserInfo> { request ->
+            post<UserInfo> { request ->
                 try {
                     val userEntity = users.findOne(UserEntity::id eq request.userId)
 

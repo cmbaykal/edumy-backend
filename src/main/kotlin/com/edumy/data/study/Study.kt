@@ -1,4 +1,4 @@
-package com.edumy.data.performance
+package com.edumy.data.study
 
 import com.edumy.util.DateSerializer
 import kotlinx.serialization.SerialName
@@ -8,7 +8,7 @@ import org.bson.types.ObjectId
 import java.util.*
 
 @Serializable
-data class Performance(
+data class Study(
     @BsonId
     val id: String = ObjectId().toString(),
     @SerialName("userId")
@@ -16,9 +16,11 @@ data class Performance(
     @SerialName("lesson")
     val lesson: String,
     @SerialName("correctA")
-    val correctA: Int,
+    val correctA: String,
     @SerialName("wrongA")
-    val wrongA: Int,
+    val wrongA: String,
+    @SerialName("emptyQ")
+    val emptyQ: String,
     @Serializable(with = DateSerializer::class)
     @SerialName("date")
     val date: Date

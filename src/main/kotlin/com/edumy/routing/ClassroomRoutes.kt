@@ -70,7 +70,7 @@ fun Application.classRoutes(database: CoroutineDatabase) {
                     val classroom = classes.findOne(Classroom::id eq request.classId)
                     val user = users.findOne(User::mail eq request.userMail)
 
-                    if (classroom != null && user != null) {
+                    if (classroom != null && user != null && user.role == "student") {
                         if (updateClassAndUser(user, classroom)) {
                             call.response.status(HttpStatusCode.OK)
                             call.respond(ApiResponse.ok())
@@ -180,7 +180,7 @@ fun Application.classRoutes(database: CoroutineDatabase) {
         }
 
         authenticate {
-            get<ClassInfo> { request ->
+            post<ClassInfo> { request ->
                 try {
                     val classroom = classes.findOne(Classroom::id eq request.classId)
                     classroom?.let {

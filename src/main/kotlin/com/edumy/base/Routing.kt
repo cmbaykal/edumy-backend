@@ -44,8 +44,7 @@ fun Application.configureRouting(database: CoroutineDatabase) {
     baseRoutes()
     userRoutes(database)
     classRoutes(database)
-    usageRoutes(database)
     questionRoutes(database)
     answerRoutes(database)
-    performanceRoutes(database)
+    studyRoutes(database)
 }

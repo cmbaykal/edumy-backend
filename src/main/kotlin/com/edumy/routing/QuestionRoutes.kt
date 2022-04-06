@@ -24,9 +24,9 @@ import java.util.*
 
 fun Application.questionRoutes(database: CoroutineDatabase) {
 
-    val questions = database.getCollection<Question>()
-    val classes = database.getCollection<Classroom>()
     val users = database.getCollection<UserEntity>()
+    val classes = database.getCollection<Classroom>()
+    val questions = database.getCollection<Question>()
 
     routing {
         authenticate {
@@ -66,6 +66,7 @@ fun Application.questionRoutes(database: CoroutineDatabase) {
                     }
                 } catch (e: Exception) {
                     call.response.status(HttpStatusCode.BadRequest)
+                    print(e)
                 }
             }
         }
@@ -101,7 +102,7 @@ fun Application.questionRoutes(database: CoroutineDatabase) {
         }
 
         authenticate {
-            get<QuestionInfo> { request ->
+            post<QuestionInfo> { request ->
                 try {
                     val foundQuestion = questions.findOne(Question::id eq request.questionId)
                     foundQuestion?.let {
@@ -132,7 +133,7 @@ fun Application.questionRoutes(database: CoroutineDatabase) {
         }
 
         authenticate {
-            get<ClassQuestions> { request ->
+            post<ClassQuestions> { request ->
                 try {
                     val classroom = classes.findOne(Classroom::id eq request.classId)
                     classroom?.let {
@@ -157,7 +158,7 @@ fun Application.questionRoutes(database: CoroutineDatabase) {
         }
 
         authenticate {
-            get<UserQuestions> { request ->
+            post<UserQuestions> { request ->
                 try {
                     val foundQuestions = questions
                         .find(Question::userId eq request.userId)
@@ -174,7 +175,7 @@ fun Application.questionRoutes(database: CoroutineDatabase) {
         }
 
         authenticate {
-            get<QuestionsFeed> { request ->
+            post<QuestionsFeed> { request ->
                 try {
                     val feedQuestions = questions
                         .find()

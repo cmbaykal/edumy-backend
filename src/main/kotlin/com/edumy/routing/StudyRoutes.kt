@@ -1,7 +1,7 @@
 package com.edumy.routing
 
 import com.edumy.base.ApiResponse
-import com.edumy.data.performance.*
+import com.edumy.data.study.*
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.http.*
@@ -13,17 +13,17 @@ import io.ktor.routing.*
 import org.litote.kmongo.coroutine.CoroutineDatabase
 import org.litote.kmongo.eq
 
-fun Application.performanceRoutes(database: CoroutineDatabase) {
+fun Application.studyRoutes(database: CoroutineDatabase) {
 
-    val performances = database.getCollection<Performance>()
+    val studies = database.getCollection<Study>()
 
     routing {
         authenticate {
-            post<AddPerformance> {
+            post<AddStudy> {
                 try {
-                    val performance = call.receive<Performance>()
+                    val study = call.receive<Study>()
 
-                    if (performances.insertOne(performance).wasAcknowledged()) {
+                    if (studies.insertOne(study).wasAcknowledged()) {
                         call.response.status(HttpStatusCode.OK)
                         call.respond(ApiResponse.ok())
                     } else {
@@ -37,9 +37,9 @@ fun Application.performanceRoutes(database: CoroutineDatabase) {
         }
 
         authenticate {
-            post<DeletePerformance> { request ->
+            post<DeleteStudy> { request ->
                 try {
-                    if (performances.deleteOne(Performance::id eq request.performanceId).wasAcknowledged()) {
+                    if (studies.deleteOne(Study::id eq request.studyId).wasAcknowledged()) {
                         call.response.status(HttpStatusCode.OK)
                         call.respond(ApiResponse.ok())
                     } else {
@@ -53,11 +53,11 @@ fun Application.performanceRoutes(database: CoroutineDatabase) {
         }
 
         authenticate {
-            get<UserPerformances> { request ->
+            post<UserStudies> { request ->
                 try {
-                    val foundPerformances = performances.find(Performance::userId eq request.userId).toList()
+                    val foundStudies = studies.find(Study::userId eq request.userId).toList()
                     call.response.status(HttpStatusCode.OK)
-                    call.respond(ApiResponse.success(foundPerformances))
+                    call.respond(ApiResponse.success(foundStudies))
                 } catch (e: Exception) {
                     call.response.status(HttpStatusCode.InternalServerError)
                     call.respond(ApiResponse.error(e.message))
@@ -65,9 +65,9 @@ fun Application.performanceRoutes(database: CoroutineDatabase) {
             }
         }
 
-        get<AllPerformances> {
+        get<AllStudies> {
             try {
-                val foundPerformances = performances.find().toList()
+                val foundPerformances = studies.find().toList()
                 call.response.status(HttpStatusCode.OK)
                 call.respond(ApiResponse.success(foundPerformances))
             } catch (e: Exception) {
