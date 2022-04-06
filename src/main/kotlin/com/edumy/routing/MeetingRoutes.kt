@@ -83,6 +83,7 @@ fun Application.meetingRoutes(database: CoroutineDatabase) {
                                     MeetingResult::id from Meeting::id,
                                     MeetingResult::user from meetingUser,
                                     MeetingResult::lesson from Meeting::lesson,
+                                    MeetingResult::description from Meeting::description,
                                     MeetingResult::duration from Meeting::duration,
                                     MeetingResult::date from Meeting::date,
                                 )
