@@ -1,7 +1,10 @@
 package com.edumy.routing
 
 import com.edumy.base.ApiResponse
+import com.edumy.data.classroom.Classroom
 import com.edumy.data.study.*
+import com.edumy.data.user.User
+import com.edumy.data.user.UserEntity
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.http.*
@@ -16,6 +19,8 @@ import org.litote.kmongo.eq
 fun Application.studyRoutes(database: CoroutineDatabase) {
 
     val studies = database.getCollection<Study>()
+    val users = database.getCollection<UserEntity>()
+    val classrooms = database.getCollection<Classroom>()
 
     routing {
         authenticate {
@@ -55,9 +60,24 @@ fun Application.studyRoutes(database: CoroutineDatabase) {
         authenticate {
             post<UserStudies> { request ->
                 try {
-                    val foundStudies = studies.find(Study::userId eq request.userId).toList()
+                    val user = users.findOne(User::id eq request.userId)
+                    val result = mutableListOf<Study>()
+                    user?.let {
+                        if (it.role == "student") {
+                            val foundStudies = studies.find(Study::userId eq request.userId).toList()
+                            result.addAll(foundStudies)
+                        } else {
+                            it.classes?.forEach { classId ->
+                                val classroom = classrooms.findOne(Classroom::id eq classId)
+                                classroom?.users?.forEach { userId ->
+                                    val foundStudies = studies.find(Study::userId eq userId).toList()
+                                    result.addAll(foundStudies)
+                                }
+                            }
+                        }
+                    }
                     call.response.status(HttpStatusCode.OK)
-                    call.respond(ApiResponse.success(foundStudies))
+                    call.respond(ApiResponse.success(result.distinct()))
                 } catch (e: Exception) {
                     call.response.status(HttpStatusCode.InternalServerError)
                     call.respond(ApiResponse.error(e.message))

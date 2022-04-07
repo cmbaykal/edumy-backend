@@ -32,7 +32,7 @@ data class MeetingResult(
     @SerialName("id")
     val id: String,
     @SerialName("user")
-    var user: User? = null,
+    val user: User?,
     @SerialName("lesson")
     val lesson:String,
     @SerialName("description")

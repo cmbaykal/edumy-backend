@@ -25,7 +25,7 @@ fun Application.configureRouting(database: CoroutineDatabase) {
 
     install(DataConversion) {
         convert<Date> {
-            val format = SimpleDateFormat("dd.mm.yyyy HH.mm.ss")
+            val format = SimpleDateFormat("dd.mm.yyyy HH:mm:ss")
 
             decode { values, _ ->
                 values.singleOrNull()?.let { format.parse(it) }
