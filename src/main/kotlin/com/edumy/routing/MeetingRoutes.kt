@@ -3,6 +3,7 @@ package com.edumy.routing
 import com.edumy.base.ApiResponse
 import com.edumy.data.answer.*
 import com.edumy.data.classroom.Classroom
+import com.edumy.data.classroom.ClassroomResult
 import com.edumy.data.meeting.Meeting
 import com.edumy.data.meeting.MeetingResult
 import com.edumy.data.meeting.ScheduleMeeting
@@ -34,6 +35,7 @@ fun Application.meetingRoutes(database: CoroutineDatabase) {
 
     val meetings = database.getCollection<Meeting>()
     val users = database.getCollection<UserEntity>()
+    val classrooms = database.getCollection<Classroom>()
 
     routing {
         authenticate {
@@ -77,12 +79,20 @@ fun Application.meetingRoutes(database: CoroutineDatabase) {
                                     )
                                 )
                             ).first()
+                            val meetingClassroom = classrooms.aggregate<Classroom>(
+                                match(Classroom::id eq it.classId),
+                                project(
+                                    exclude(
+                                        Classroom::users
+                                    )
+                                )
+                            ).first()
                             val aggregatedData = meetings.aggregate<MeetingResult>(
                                 match(Meeting::id eq it.id),
                                 project(
                                     MeetingResult::id from Meeting::id,
                                     MeetingResult::user from meetingUser,
-                                    MeetingResult::lesson from Meeting::lesson,
+                                    MeetingResult::classroom from meetingClassroom,
                                     MeetingResult::description from Meeting::description,
                                     MeetingResult::duration from Meeting::duration,
                                     MeetingResult::date from Meeting::date,

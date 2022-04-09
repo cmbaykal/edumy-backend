@@ -1,6 +1,5 @@
 package com.edumy.util
 
-import com.edumy.base.ApiResponse
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializer
 import kotlinx.serialization.descriptors.PrimitiveKind
@@ -13,7 +12,7 @@ import java.util.*
 
 @Serializer(forClass = Date::class)
 object DateSerializer : KSerializer<Date> {
-    private val df: DateFormat = SimpleDateFormat("dd.MM.yyyy HH.mm.ss", Locale.ENGLISH)
+    private val df: DateFormat = SimpleDateFormat("dd.MM.yyyy HH:mm:ss", Locale.ENGLISH)
 
     override val descriptor = PrimitiveSerialDescriptor("DateSerializer", PrimitiveKind.STRING)
 
@@ -22,14 +21,4 @@ object DateSerializer : KSerializer<Date> {
     override fun serialize(encoder: Encoder, value: Date) = encoder.encodeString(df.format(value.time))
 
     fun parse(value: String): Date = df.parse(value)
-}
-
-@Serializer(forClass = ApiResponse::class)
-object BaseResponseSerializer : KSerializer<ApiResponse<Any>> {
-    override fun deserialize(decoder: Decoder): ApiResponse<Any> {
-        TODO("Not yet implemented")
-    }
-    override fun serialize(encoder: Encoder, value: ApiResponse<Any>) {
-        TODO("Not yet implemented")
-    }
 }

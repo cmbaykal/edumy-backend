@@ -1,5 +1,6 @@
 package com.edumy.data.meeting
 
+import com.edumy.data.classroom.Classroom
 import com.edumy.data.user.User
 import com.edumy.util.DateSerializer
 import kotlinx.serialization.SerialName
@@ -13,18 +14,16 @@ data class Meeting(
     @BsonId
     val id: String = ObjectId().toString(),
     @SerialName("classId")
-    val classId:String,
+    val classId: String,
     @SerialName("creatorId")
-    val creatorId:String,
-    @SerialName("lesson")
-    val lesson:String,
+    val creatorId: String,
     @SerialName("description")
-    val description:String,
+    val description: String,
     @SerialName("duration")
-    val duration:Int,
+    val duration: Int,
     @Serializable(with = DateSerializer::class)
     @SerialName("date")
-    val date:Date
+    val date: Date
 )
 
 @Serializable
@@ -33,13 +32,13 @@ data class MeetingResult(
     val id: String,
     @SerialName("user")
     val user: User?,
-    @SerialName("lesson")
-    val lesson:String,
+    @SerialName("classroom")
+    val classroom: Classroom?,
     @SerialName("description")
-    val description:String,
+    val description: String,
     @SerialName("duration")
-    val duration:Int,
+    val duration: Int,
     @Serializable(with = DateSerializer::class)
     @SerialName("date")
-    val date:Date
+    val date: Date
 )
