@@ -1,16 +1,14 @@
-package com.edumy.base
+package com.edumy.base.routing
 
-import io.ktor.application.*
 import io.ktor.http.*
-import io.ktor.locations.*
-import io.ktor.response.*
-import io.ktor.routing.*
+import io.ktor.server.application.*
+import io.ktor.server.resources.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
 import java.io.File
 
 fun Application.baseRoutes() {
-
     routing {
-
         get {
             call.respond("Hello Baykal")
         }
@@ -34,7 +32,5 @@ fun Application.baseRoutes() {
                 call.respond(HttpStatusCode.NotFound)
             }
         }
-
     }
-
 }

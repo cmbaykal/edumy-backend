@@ -3,11 +3,10 @@ package com.edumy.base
 import com.auth0.jwt.JWT
 import com.auth0.jwt.JWTVerifier
 import com.auth0.jwt.algorithms.Algorithm
-import com.edumy.data.user.User
 import com.edumy.data.user.UserEntity
-import io.ktor.application.*
-import io.ktor.auth.*
-import io.ktor.auth.jwt.*
+import io.ktor.server.application.*
+import io.ktor.server.auth.*
+import io.ktor.server.auth.jwt.*
 import java.util.*
 
 fun Application.configureSecurity() {

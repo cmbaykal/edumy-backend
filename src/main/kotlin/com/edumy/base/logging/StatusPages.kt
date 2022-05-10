@@ -1,9 +1,11 @@
-package com.edumy.base
+package com.edumy.base.logging
 
-import io.ktor.application.*
-import io.ktor.features.*
+
+import com.edumy.base.ApiResponse
 import io.ktor.http.*
-import io.ktor.response.*
+import io.ktor.server.application.*
+import io.ktor.server.plugins.statuspages.*
+import io.ktor.server.response.*
 
 fun Application.configureStatusPages() {
     install(StatusPages) {

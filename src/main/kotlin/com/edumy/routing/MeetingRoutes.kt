@@ -1,35 +1,20 @@
 package com.edumy.routing
 
 import com.edumy.base.ApiResponse
-import com.edumy.data.answer.*
 import com.edumy.data.classroom.Classroom
-import com.edumy.data.classroom.ClassroomResult
 import com.edumy.data.meeting.Meeting
 import com.edumy.data.meeting.MeetingResult
-import com.edumy.data.meeting.ScheduleMeeting
-import com.edumy.data.meeting.UserMeetings
-import com.edumy.data.question.Question
 import com.edumy.data.user.User
 import com.edumy.data.user.UserEntity
-import com.edumy.util.DateSerializer
-import com.edumy.util.FileType
-import com.edumy.util.FileType.Companion.fileType
-import com.edumy.util.FileType.Companion.path
-import io.ktor.application.*
-import io.ktor.auth.*
 import io.ktor.http.*
-import io.ktor.http.content.*
-import io.ktor.locations.*
-import io.ktor.locations.post
-import io.ktor.request.*
-import io.ktor.response.*
-import io.ktor.routing.*
+import io.ktor.server.application.*
+import io.ktor.server.auth.*
+import io.ktor.server.request.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
 import org.litote.kmongo.*
 import org.litote.kmongo.coroutine.CoroutineDatabase
 import org.litote.kmongo.coroutine.aggregate
-import org.litote.kmongo.coroutine.insertOne
-import java.io.File
-import java.util.*
 
 fun Application.meetingRoutes(database: CoroutineDatabase) {
 

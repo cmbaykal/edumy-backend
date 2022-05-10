@@ -1,6 +1,6 @@
 package com.edumy.base
 
-import io.ktor.application.*
+import io.ktor.server.application.*
 import org.litote.kmongo.coroutine.CoroutineDatabase
 import org.litote.kmongo.coroutine.coroutine
 import org.litote.kmongo.reactivestreams.KMongo

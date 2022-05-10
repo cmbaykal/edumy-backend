@@ -1,0 +1,20 @@
+package com.edumy.routing
+
+import io.ktor.resources.*
+import kotlinx.serialization.Serializable
+
+@Serializable
+@Resource("study/add")
+class AddStudy
+
+@Serializable
+@Resource("study/delete")
+data class DeleteStudy(val studyId: String)
+
+@Serializable
+@Resource("study/user")
+data class UserStudies(val userId: String)
+
+@Serializable
+@Resource("study/all")
+class AllStudies

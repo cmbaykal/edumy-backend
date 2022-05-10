@@ -5,14 +5,14 @@ import com.edumy.base.JWTConfig
 import com.edumy.data.auth.AuthToken
 import com.edumy.data.user.*
 import com.toxicbakery.bcrypt.Bcrypt
-import io.ktor.application.*
-import io.ktor.auth.*
 import io.ktor.http.*
-import io.ktor.locations.*
-import io.ktor.locations.post
-import io.ktor.request.*
-import io.ktor.response.*
-import io.ktor.routing.*
+import io.ktor.server.application.*
+import io.ktor.server.auth.*
+import io.ktor.server.request.*
+import io.ktor.server.resources.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
+import io.ktor.server.routing.post
 import org.litote.kmongo.coroutine.CoroutineDatabase
 import org.litote.kmongo.eq
 
@@ -61,8 +61,7 @@ fun Application.userRoutes(database: CoroutineDatabase) {
                         call.respond(ApiResponse.error("Invalid User Credentials"))
                     }
                 } ?: run {
-                    call.response.status(HttpStatusCode.NonAuthoritativeInformation)
-                    call.respond(ApiResponse.error("Invalid User Credentials"))
+                    throw Exception("User not found")
                 }
             } catch (e: Exception) {
                 call.respond(HttpStatusCode.BadRequest)
@@ -117,7 +116,6 @@ fun Application.userRoutes(database: CoroutineDatabase) {
                     }
                 } catch (e: Exception) {
                     call.response.status(HttpStatusCode.BadRequest)
-                    print(e)
                 }
             }
         }

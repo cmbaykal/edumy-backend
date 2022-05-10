@@ -1,19 +1,21 @@
 package com.edumy.base
 
+import com.edumy.base.routing.baseRoutes
 import com.edumy.routing.*
-import io.ktor.application.*
-import io.ktor.features.*
-import io.ktor.locations.*
-import io.ktor.routing.*
-import io.ktor.serialization.*
-import io.ktor.util.*
+import io.ktor.serialization.kotlinx.json.*
+import io.ktor.server.application.*
+import io.ktor.server.plugins.contentnegotiation.*
+import io.ktor.server.plugins.dataconversion.DataConversion
+import io.ktor.server.resources.*
+import io.ktor.server.routing.*
+import io.ktor.util.converters.*
 import kotlinx.serialization.json.Json
 import org.litote.kmongo.coroutine.CoroutineDatabase
 import java.text.SimpleDateFormat
 import java.util.*
 
 fun Application.configureRouting(database: CoroutineDatabase) {
-    install(Locations)
+    install(Resources)
     install(Routing)
     install(ContentNegotiation) {
         json(Json {
@@ -27,15 +29,15 @@ fun Application.configureRouting(database: CoroutineDatabase) {
         convert<Date> {
             val format = SimpleDateFormat("dd.mm.yyyy HH:mm:ss")
 
-            decode { values, _ ->
-                values.singleOrNull()?.let { format.parse(it) }
+            decode { value ->
+                value.singleOrNull().let { format.parse(it) }
             }
 
-            encode { value -> //
-                when (value) {
-                    null -> listOf()
-                    is Date -> listOf(SimpleDateFormat.getInstance().format(value))
-                    else -> throw DataConversionException("Cannot convert $value as Date")
+            encode { value ->
+                try {
+                    listOf(SimpleDateFormat.getInstance().format(value))
+                } catch (e: Exception) {
+                    throw DataConversionException("Cannot convert $value as Date")
                 }
             }
         }
