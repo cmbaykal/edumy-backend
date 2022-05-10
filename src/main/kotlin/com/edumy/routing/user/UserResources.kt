@@ -1,11 +1,11 @@
-package com.edumy.routing
+package com.edumy.routing.user
 
 import io.ktor.resources.*
 import kotlinx.serialization.Serializable
 
 @Serializable
 @Resource("/user/auth/token")
-data class UserAuth(val userId: String)
+class UserAuth(val userId: String)
 
 @Serializable
 @Resource("/user/register")
@@ -21,17 +21,16 @@ class UpdateUser
 
 @Serializable
 @Resource("/user/changePassword")
-class ChangePassword
+class ChangePasswordUser
 
 @Serializable
 @Resource("/user/info")
-data class UserInfo(val userId: String)
+class UserInfo(val userId: String)
 
 @Serializable
 @Resource("/user/delete")
-data class DeleteUser(val userId: String)
+class DeleteUser(val userId: String)
 
 @Serializable
 @Resource("/user/all")
 class AllUsers
-

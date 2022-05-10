@@ -1,4 +1,4 @@
-package com.edumy.routing
+package com.edumy.routing.study
 
 import io.ktor.resources.*
 import kotlinx.serialization.Serializable

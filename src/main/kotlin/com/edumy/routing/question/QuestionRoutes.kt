@@ -1,4 +1,4 @@
-package com.edumy.routing
+package com.edumy.routing.question
 
 import com.edumy.base.ApiResponse
 import com.edumy.data.answer.Answer
@@ -15,8 +15,7 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.resources.*
 import io.ktor.server.response.*
-import io.ktor.server.routing.*
-import io.ktor.server.routing.post
+import io.ktor.server.routing.routing
 import org.litote.kmongo.*
 import org.litote.kmongo.coroutine.CoroutineDatabase
 import org.litote.kmongo.coroutine.aggregate

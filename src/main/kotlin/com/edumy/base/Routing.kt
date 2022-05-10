@@ -1,7 +1,12 @@
 package com.edumy.base
 
 import com.edumy.base.routing.baseRoutes
-import com.edumy.routing.*
+import com.edumy.routing.answer.answerRoutes
+import com.edumy.routing.classroom.classRoutes
+import com.edumy.routing.meeting.meetingRoutes
+import com.edumy.routing.question.questionRoutes
+import com.edumy.routing.study.studyRoutes
+import com.edumy.routing.user.userRoutes
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.contentnegotiation.*
@@ -17,6 +22,7 @@ import java.util.*
 fun Application.configureRouting(database: CoroutineDatabase) {
     install(Resources)
     install(Routing)
+
     install(ContentNegotiation) {
         json(Json {
             prettyPrint = true
@@ -24,7 +30,6 @@ fun Application.configureRouting(database: CoroutineDatabase) {
             ignoreUnknownKeys = true
         })
     }
-
     install(DataConversion) {
         convert<Date> {
             val format = SimpleDateFormat("dd.mm.yyyy HH:mm:ss")

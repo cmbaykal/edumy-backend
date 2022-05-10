@@ -1,4 +1,4 @@
-package com.edumy.routing
+package com.edumy.routing.meeting
 
 import io.ktor.resources.*
 import kotlinx.serialization.Serializable
@@ -9,4 +9,4 @@ class ScheduleMeeting
 
 @Serializable
 @Resource("meeting/user")
-data class UserMeetings(val userId: String)
+class UserMeetings(val userId: String)

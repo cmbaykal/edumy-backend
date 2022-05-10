@@ -1,4 +1,4 @@
-package com.edumy.routing
+package com.edumy.routing.user
 
 import com.edumy.base.ApiResponse
 import com.edumy.base.JWTConfig
@@ -11,15 +11,13 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.resources.*
 import io.ktor.server.response.*
-import io.ktor.server.routing.*
-import io.ktor.server.routing.post
+import io.ktor.server.routing.routing
 import org.litote.kmongo.coroutine.CoroutineDatabase
 import org.litote.kmongo.eq
 
 fun Application.userRoutes(database: CoroutineDatabase) {
 
     val users = database.getCollection<UserEntity>()
-
     routing {
         get<UserAuth> { request ->
             try {
@@ -93,7 +91,7 @@ fun Application.userRoutes(database: CoroutineDatabase) {
         }
 
         authenticate {
-            post<ChangePassword> {
+            post<ChangePasswordUser> {
                 try {
                     val passwordCredentials = call.receive<PasswordCredentials>()
                     val user = users.findOne(User::id eq passwordCredentials.userId)
@@ -135,7 +133,7 @@ fun Application.userRoutes(database: CoroutineDatabase) {
         }
 
         authenticate {
-            post<UserInfo> { request ->
+            get<UserInfo> { request ->
                 try {
                     val userEntity = users.findOne(UserEntity::id eq request.userId)
 

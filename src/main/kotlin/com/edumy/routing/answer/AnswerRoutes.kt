@@ -1,4 +1,4 @@
-package com.edumy.routing
+package com.edumy.routing.answer
 
 import com.edumy.base.ApiResponse
 import com.edumy.data.answer.Answer
@@ -18,8 +18,7 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.resources.*
 import io.ktor.server.response.*
-import io.ktor.server.routing.*
-import io.ktor.server.routing.post
+import io.ktor.server.routing.routing
 import org.litote.kmongo.*
 import org.litote.kmongo.coroutine.CoroutineDatabase
 import org.litote.kmongo.coroutine.aggregate
@@ -33,7 +32,7 @@ fun Application.answerRoutes(database: CoroutineDatabase) {
     val questions = database.getCollection<Question>()
     val answers = database.getCollection<Answer>()
 
-    suspend fun getAnswerInformations(foundAnswers: List<Answer>): MutableList<AnswerInformation> {
+    suspend fun getAnswerInfo(foundAnswers: List<Answer>): MutableList<AnswerInformation> {
         val result = mutableListOf<AnswerInformation>()
 
         foundAnswers.forEach { answer ->
@@ -202,7 +201,7 @@ fun Application.answerRoutes(database: CoroutineDatabase) {
             post<QuestionAnswers> { request ->
                 try {
                     val foundAnswers = answers.find(Answer::questionId eq request.questionId).toList()
-                    val result = getAnswerInformations(foundAnswers)
+                    val result = getAnswerInfo(foundAnswers)
                     call.response.status(HttpStatusCode.OK)
                     call.respond(ApiResponse.success(result))
                 } catch (e: Exception) {
@@ -216,7 +215,7 @@ fun Application.answerRoutes(database: CoroutineDatabase) {
             post<UserAnswers> { request ->
                 try {
                     val foundAnswers = answers.find(Answer::userId eq request.userId).toList()
-                    val result = getAnswerInformations(foundAnswers)
+                    val result = getAnswerInfo(foundAnswers)
                     call.response.status(HttpStatusCode.OK)
                     call.respond(ApiResponse.success(result))
                 } catch (e: Exception) {
@@ -236,7 +235,7 @@ fun Application.answerRoutes(database: CoroutineDatabase) {
                                 Answer::userId `in` it.users.toList(),
                             )
                         ).toList()
-                        val result = getAnswerInformations(foundAnswers)
+                        val result = getAnswerInfo(foundAnswers)
                         call.response.status(HttpStatusCode.OK)
                         call.respond(ApiResponse.success(result))
                     } ?: run {

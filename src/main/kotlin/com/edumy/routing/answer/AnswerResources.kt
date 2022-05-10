@@ -1,4 +1,4 @@
-package com.edumy.routing
+package com.edumy.routing.answer
 
 import io.ktor.resources.*
 import kotlinx.serialization.Serializable
@@ -9,27 +9,27 @@ class AddAnswer
 
 @Serializable
 @Resource("answer/delete")
-data class DeleteAnswer(val answerId: String)
+class DeleteAnswer(val answerId: String)
 
 @Serializable
 @Resource("answer/upvote")
-data class UpVoteAnswer(val answerId: String, val userId: String)
+class UpVoteAnswer(val answerId: String, val userId: String)
 
 @Serializable
 @Resource("answer/downvote")
-data class DownVoteAnswer(val answerId: String, val userId: String)
+class DownVoteAnswer(val answerId: String, val userId: String)
 
 @Serializable
 @Resource("answer/question")
-data class QuestionAnswers(val questionId: String)
+class QuestionAnswers(val questionId: String)
 
 @Serializable
 @Resource("answer/user")
-data class UserAnswers(val userId: String)
+class UserAnswers(val userId: String)
 
 @Serializable
 @Resource("answer/class")
-data class ClassAnswers(val classId: String)
+class ClassAnswers(val classId: String)
 
 @Serializable
 @Resource("answer/all")
