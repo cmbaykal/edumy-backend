@@ -12,8 +12,11 @@ import io.ktor.server.request.*
 import io.ktor.server.resources.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.routing
+import org.litote.kmongo.`in`
 import org.litote.kmongo.coroutine.CoroutineDatabase
+import org.litote.kmongo.coroutine.aggregate
 import org.litote.kmongo.eq
+import org.litote.kmongo.match
 
 fun Application.studyRoutes(database: CoroutineDatabase) {
 
@@ -57,26 +60,61 @@ fun Application.studyRoutes(database: CoroutineDatabase) {
         }
 
         authenticate {
+            post<ClassStudies> { request ->
+                try {
+                    val classroom = classrooms.findOne(Classroom::id eq request.classId)
+                    classroom?.let {
+                        val foundStudies = studies.aggregate<Study>(
+                            match(
+                                Study::userId `in` it.users.toList(),
+                                Study::lesson eq it.lesson
+                            )
+                        ).toList()
+                        call.response.status(HttpStatusCode.OK)
+                        call.respond(ApiResponse.success(foundStudies.distinctBy { study -> study.id }))
+                    } ?: run {
+                        call.respond(HttpStatusCode.NotFound)
+                    }
+                } catch (e: Exception) {
+                    call.response.status(HttpStatusCode.InternalServerError)
+                    call.respond(ApiResponse.error(e.message))
+                }
+            }
+        }
+
+        authenticate {
             post<UserStudies> { request ->
                 try {
                     val user = users.findOne(User::id eq request.userId)
                     val result = mutableListOf<Study>()
                     user?.let {
-                        if (it.role == "student") {
-                            val foundStudies = studies.find(Study::userId eq request.userId).toList()
-                            result.addAll(foundStudies)
-                        } else {
-                            it.classes?.forEach { classId ->
-                                val classroom = classrooms.findOne(Classroom::id eq classId)
-                                classroom?.users?.forEach { userId ->
-                                    val foundStudies = studies.find(Study::userId eq userId).toList()
-                                    result.addAll(foundStudies)
-                                }
-                            }
-                        }
+                        val foundStudies = studies.find(Study::userId eq request.userId).toList()
+                        result.addAll(foundStudies)
                     }
                     call.response.status(HttpStatusCode.OK)
-                    call.respond(ApiResponse.success(result.distinct()))
+                    call.respond(ApiResponse.success(result.distinctBy { study -> study.id }))
+                } catch (e: Exception) {
+                    call.response.status(HttpStatusCode.InternalServerError)
+                    call.respond(ApiResponse.error(e.message))
+                }
+            }
+        }
+
+        authenticate {
+            post<StudiesFeed> { request ->
+                try {
+                    val foundClassrooms = classrooms.find(Classroom::creatorId eq request.userId).toList()
+                    val result = mutableListOf<Study>()
+                    foundClassrooms.forEach { classroom ->
+                        val foundStudies = studies.aggregate<Study>(
+                            match(
+                                Study::userId `in` classroom.users,
+                            )
+                        ).toList()
+                        result.addAll(foundStudies)
+                    }
+                    call.response.status(HttpStatusCode.OK)
+                    call.respond(ApiResponse.success(result.distinctBy { study -> study.id }))
                 } catch (e: Exception) {
                     call.response.status(HttpStatusCode.InternalServerError)
                     call.respond(ApiResponse.error(e.message))

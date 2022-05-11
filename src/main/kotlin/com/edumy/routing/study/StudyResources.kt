@@ -9,11 +9,19 @@ class AddStudy
 
 @Serializable
 @Resource("study/delete")
-data class DeleteStudy(val studyId: String)
+class DeleteStudy(val studyId: String)
 
 @Serializable
 @Resource("study/user")
-data class UserStudies(val userId: String)
+class UserStudies(val userId: String)
+
+@Serializable
+@Resource("study/classroom")
+class ClassStudies(val classId: String)
+
+@Serializable
+@Resource("study/feed")
+class StudiesFeed(val userId: String)
 
 @Serializable
 @Resource("study/all")

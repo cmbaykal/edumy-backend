@@ -19,7 +19,7 @@ import org.litote.kmongo.coroutine.aggregate
 fun Application.classRoutes(database: CoroutineDatabase) {
 
     val users = database.getCollection<UserEntity>()
-    val classes = database.getCollection<Classroom>()
+    val classrooms = database.getCollection<Classroom>()
 
     suspend fun updateClassAndUser(user: UserEntity, classroom: Classroom, remove: Boolean = false): Boolean {
         val userClasses: MutableList<String> = (user.classes ?: ArrayList()).also {
@@ -38,7 +38,7 @@ fun Application.classRoutes(database: CoroutineDatabase) {
         }
 
         val userUpdate = users.updateOne(User::id eq user.id, setValue(User::classes, userClasses)).wasAcknowledged()
-        val classUpdate = classes.updateOne(Classroom::id eq classroom.id, setValue(Classroom::users, classUsers)).wasAcknowledged()
+        val classUpdate = classrooms.updateOne(Classroom::id eq classroom.id, setValue(Classroom::users, classUsers)).wasAcknowledged()
 
         return userUpdate && classUpdate
     }
@@ -50,7 +50,7 @@ fun Application.classRoutes(database: CoroutineDatabase) {
                     val classroom = call.receive<Classroom>()
                     val user = users.findOne(User::id eq classroom.creatorId)
 
-                    if (user != null && classes.insertOne(classroom).wasAcknowledged() && updateClassAndUser(user, classroom)) {
+                    if (user != null && classrooms.insertOne(classroom).wasAcknowledged() && updateClassAndUser(user, classroom)) {
                         call.response.status(HttpStatusCode.OK)
                         call.respond(ApiResponse.ok())
                     } else {
@@ -67,7 +67,7 @@ fun Application.classRoutes(database: CoroutineDatabase) {
         authenticate {
             post<AssignUser> { request ->
                 try {
-                    val classroom = classes.findOne(Classroom::id eq request.classId)
+                    val classroom = classrooms.findOne(Classroom::id eq request.classId)
                     val user = users.findOne(User::mail eq request.userMail)
 
                     if (classroom != null && user != null && user.role == "student") {
@@ -91,7 +91,7 @@ fun Application.classRoutes(database: CoroutineDatabase) {
         authenticate {
             post<LeaveClass> { request ->
                 try {
-                    val classroom = classes.findOne(Classroom::id eq request.classId)
+                    val classroom = classrooms.findOne(Classroom::id eq request.classId)
                     val user = users.findOne(User::mail eq request.userMail)
 
                     if (classroom != null && user != null && updateClassAndUser(user, classroom, true)) {
@@ -110,7 +110,7 @@ fun Application.classRoutes(database: CoroutineDatabase) {
         authenticate {
             post<DeleteClass> { request ->
                 try {
-                    val deleteProcess = classes.deleteOne(Classroom::id eq request.classId)
+                    val deleteProcess = classrooms.deleteOne(Classroom::id eq request.classId)
                     val user = users.findOne(User::mail eq request.userMail)
 
                     if (user != null && deleteProcess.wasAcknowledged()) {
@@ -134,9 +134,9 @@ fun Application.classRoutes(database: CoroutineDatabase) {
         authenticate {
             post<UserClassrooms> { request ->
                 try {
-                    val foundClasses = classes.aggregate<Classroom>(
+                    val foundClasses = classrooms.aggregate<Classroom>(
                         match(
-                            Classroom::users contains request.userId
+                            Classroom::creatorId eq request.userId
                         ),
                         sort(
                             ascending(
@@ -181,7 +181,7 @@ fun Application.classRoutes(database: CoroutineDatabase) {
         authenticate {
             post<ClassInfo> { request ->
                 try {
-                    val classroom = classes.findOne(Classroom::id eq request.classId)
+                    val classroom = classrooms.findOne(Classroom::id eq request.classId)
                     classroom?.let {
                         val classUsers = users.aggregate<User>(
                             match(
@@ -214,7 +214,7 @@ fun Application.classRoutes(database: CoroutineDatabase) {
 
         get<AllClasses> {
             try {
-                val foundClasses = classes.find().toList()
+                val foundClasses = classrooms.find().toList()
                 call.response.status(HttpStatusCode.OK)
                 call.respond(ApiResponse.success(foundClasses))
             } catch (e: Exception) {

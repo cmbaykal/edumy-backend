@@ -25,7 +25,7 @@ import java.util.*
 fun Application.questionRoutes(database: CoroutineDatabase) {
 
     val users = database.getCollection<UserEntity>()
-    val classes = database.getCollection<Classroom>()
+    val classrooms = database.getCollection<Classroom>()
     val questions = database.getCollection<Question>()
 
     routing {
@@ -135,7 +135,7 @@ fun Application.questionRoutes(database: CoroutineDatabase) {
         authenticate {
             post<ClassQuestions> { request ->
                 try {
-                    val classroom = classes.findOne(Classroom::id eq request.classId)
+                    val classroom = classrooms.findOne(Classroom::id eq request.classId)
                     classroom?.let {
                         val foundQuestions = questions.aggregate<Question>(
                             match(

@@ -16,7 +16,7 @@ class DeleteQuestion(val questionId: String)
 class QuestionInfo(val questionId: String)
 
 @Serializable
-@Resource("question/class")
+@Resource("question/classroom")
 class ClassQuestions(val classId: String, val page: Int, val limit: Int)
 
 @Serializable

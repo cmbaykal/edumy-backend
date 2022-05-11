@@ -28,7 +28,7 @@ class QuestionAnswers(val questionId: String)
 class UserAnswers(val userId: String)
 
 @Serializable
-@Resource("answer/class")
+@Resource("answer/classroom")
 class ClassAnswers(val classId: String)
 
 @Serializable
