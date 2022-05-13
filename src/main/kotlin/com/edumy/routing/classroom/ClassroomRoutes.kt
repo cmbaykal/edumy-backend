@@ -136,7 +136,7 @@ fun Application.classRoutes(database: CoroutineDatabase) {
                 try {
                     val foundClasses = classrooms.aggregate<Classroom>(
                         match(
-                            Classroom::creatorId eq request.userId
+                            Classroom::users contains request.userId
                         ),
                         sort(
                             ascending(

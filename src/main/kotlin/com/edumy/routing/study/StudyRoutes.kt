@@ -13,6 +13,7 @@ import io.ktor.server.resources.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.routing
 import org.litote.kmongo.`in`
+import org.litote.kmongo.contains
 import org.litote.kmongo.coroutine.CoroutineDatabase
 import org.litote.kmongo.coroutine.aggregate
 import org.litote.kmongo.eq
@@ -103,7 +104,7 @@ fun Application.studyRoutes(database: CoroutineDatabase) {
         authenticate {
             post<StudiesFeed> { request ->
                 try {
-                    val foundClassrooms = classrooms.find(Classroom::creatorId eq request.userId).toList()
+                    val foundClassrooms = classrooms.find(Classroom::users contains request.userId).toList()
                     val result = mutableListOf<Study>()
                     foundClassrooms.forEach { classroom ->
                         val foundStudies = studies.aggregate<Study>(
