@@ -5,6 +5,7 @@ import com.edumy.data.classroom.Classroom
 import com.edumy.data.classroom.ClassroomResult
 import com.edumy.data.user.User
 import com.edumy.data.user.UserEntity
+import com.edumy.data.user.UserRole
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -70,7 +71,7 @@ fun Application.classRoutes(database: CoroutineDatabase) {
                     val classroom = classrooms.findOne(Classroom::id eq request.classId)
                     val user = users.findOne(User::mail eq request.userMail)
 
-                    if (classroom != null && user != null && user.role == "student") {
+                    if (classroom != null && user != null && user.role == UserRole.Student) {
                         if (updateClassAndUser(user, classroom)) {
                             call.response.status(HttpStatusCode.OK)
                             call.respond(ApiResponse.ok())
