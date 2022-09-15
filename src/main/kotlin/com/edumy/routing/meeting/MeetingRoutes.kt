@@ -90,7 +90,8 @@ fun Application.meetingRoutes(database: CoroutineDatabase) {
                         call.response.status(HttpStatusCode.OK)
                         call.respond(ApiResponse.success(result))
                     } ?: run {
-                        call.respond(HttpStatusCode.NotFound)
+                        call.response.status(HttpStatusCode.OK)
+                        call.respond(ApiResponse.error("The user is not assigned to any class."))
                     }
                 } catch (e: Exception) {
                     call.response.status(HttpStatusCode.BadRequest)
