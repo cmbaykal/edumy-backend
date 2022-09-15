@@ -71,17 +71,22 @@ fun Application.classRoutes(database: CoroutineDatabase) {
                     val classroom = classrooms.findOne(Classroom::id eq request.classId)
                     val user = users.findOne(User::mail eq request.userMail)
 
-                    if (classroom != null && user != null && user.role == UserRole.Student) {
-                        if (updateClassAndUser(user, classroom)) {
-                            call.response.status(HttpStatusCode.OK)
-                            call.respond(ApiResponse.ok())
+                    if (classroom != null && user != null) {
+                        if (user.role == UserRole.Student) {
+                            if (updateClassAndUser(user, classroom)) {
+                                call.response.status(HttpStatusCode.OK)
+                                call.respond(ApiResponse.ok())
+                            } else {
+                                call.response.status(HttpStatusCode.InternalServerError)
+                                call.respond(ApiResponse.error())
+                            }
                         } else {
-                            call.response.status(HttpStatusCode.InternalServerError)
-                            call.respond(ApiResponse.error())
+                            call.response.status(HttpStatusCode.BadRequest)
+                            call.respond(ApiResponse.error("User has to be a student"))
                         }
                     } else {
                         call.response.status(HttpStatusCode.NotFound)
-                        call.respond(ApiResponse.error())
+                        call.respond(ApiResponse.error("User not found"))
                     }
                 } catch (e: Exception) {
                     call.response.status(HttpStatusCode.BadRequest)

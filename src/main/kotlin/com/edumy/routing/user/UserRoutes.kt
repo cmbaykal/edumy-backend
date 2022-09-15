@@ -18,16 +18,19 @@ import org.litote.kmongo.eq
 fun Application.userRoutes(database: CoroutineDatabase) {
 
     val users = database.getCollection<UserEntity>()
+
     routing {
         get<UserAuth> { request ->
             try {
-                val user = users.findOne(UserEntity::id eq request.userId)
+                val userId = request.userId
+                val user = users.findOne(UserEntity::id eq userId)
                 user?.let {
                     call.response.status(HttpStatusCode.OK)
                     val authToken = AuthToken(JWTConfig.generateToken(it), JWTConfig.expireTime)
                     call.respond(ApiResponse.success(authToken))
                 } ?: run {
                     call.response.status(HttpStatusCode.NotFound)
+                    call.respond(ApiResponse.error("User not found"))
                 }
             } catch (e: Exception) {
                 call.response.status(HttpStatusCode.BadRequest)
