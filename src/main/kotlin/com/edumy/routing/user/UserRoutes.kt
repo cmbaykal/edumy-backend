@@ -34,6 +34,8 @@ fun Application.userRoutes(database: CoroutineDatabase) {
             }
         }
 
+
+        // TODO : Check if mail address is already used
         post<RegisterUser> {
             try {
                 val requestBody = call.receive<UserEntity>()
@@ -42,6 +44,7 @@ fun Application.userRoutes(database: CoroutineDatabase) {
                 call.respond(ApiResponse.ok())
             } catch (e: Exception) {
                 call.response.status(HttpStatusCode.BadRequest)
+                call.respond(ApiResponse.error(e.message))
             }
         }
 
@@ -59,7 +62,8 @@ fun Application.userRoutes(database: CoroutineDatabase) {
                         call.respond(ApiResponse.error("Invalid User Credentials"))
                     }
                 } ?: run {
-                    throw Exception("User not found")
+                    call.response.status(HttpStatusCode.NotFound)
+                    call.respond(ApiResponse.error("User not found"))
                 }
             } catch (e: Exception) {
                 call.respond(HttpStatusCode.BadRequest)
