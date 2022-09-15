@@ -8,9 +8,6 @@ open class BaseResponse(
     @SerialName("dialog")
     var dialog: EdumyDialog? = null,
 
-    @SerialName("success")
-    var success: Boolean? = false,
-
     @SerialName("error")
     var error: String? = null
 )
@@ -21,14 +18,11 @@ data class ApiResponse<T>(
     var data: T? = null
 ) : BaseResponse() {
     companion object {
-        fun <T> success(data: T? = null) = ApiResponse(data).apply {
-            success = true
-        }
+        fun <T> success(data: T? = null) = ApiResponse(data)
 
-        fun ok(): BaseResponse = BaseResponse(success = true)
+        fun ok(): BaseResponse = BaseResponse()
 
         fun error(message: String? = null, dialog: EdumyDialog? = null) = BaseResponse(
-            success = false,
             error = message ?: "Oops, an error occurred. Please try again.",
             dialog = dialog
         )

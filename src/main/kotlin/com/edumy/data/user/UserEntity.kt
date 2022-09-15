@@ -12,7 +12,7 @@ open class User(
     @BsonId
     val id: String = ObjectId().toString(),
     @SerialName("role")
-    val role: String? = null,
+    val role: UserRole? = null,
     @SerialName("mail")
     val mail: String? = null,
     @Serializable(with = DateSerializer::class)
@@ -59,3 +59,13 @@ data class PasswordCredentials(
     @SerialName("newPass")
     val newPass: String,
 )
+
+@Serializable
+enum class UserRole {
+    @SerialName("Student")
+    Student,
+
+    @SerialName("Teacher")
+    Teacher;
+}
+
