@@ -16,6 +16,7 @@ build
 out
 *.iml
 .vscode
+uploads
 
 *.versionsBackup
 *.releaseBackup

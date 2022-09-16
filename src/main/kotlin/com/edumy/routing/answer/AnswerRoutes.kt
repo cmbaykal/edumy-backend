@@ -29,7 +29,6 @@ fun Application.answerRoutes(database: CoroutineDatabase) {
 
     val users = database.getCollection<UserEntity>()
     val classes = database.getCollection<Classroom>()
-    val questions = database.getCollection<Question>()
     val answers = database.getCollection<Answer>()
 
     suspend fun getAnswerInfo(foundAnswers: List<Answer>): MutableList<AnswerInformation> {
