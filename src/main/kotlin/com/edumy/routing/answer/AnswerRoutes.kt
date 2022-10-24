@@ -103,7 +103,7 @@ fun Application.answerRoutes(database: CoroutineDatabase) {
                                     }
                                 }
                             }
-                            is PartData.BinaryItem -> TODO()
+                            else -> {}
                         }
                     }
 

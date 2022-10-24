@@ -53,7 +53,7 @@ fun Application.questionRoutes(database: CoroutineDatabase) {
 
                                 question.image = fileName
                             }
-                            is PartData.BinaryItem -> TODO()
+                            else -> {}
                         }
                     }
 
