@@ -2,6 +2,7 @@ package com.edumy.routing.classroom
 
 import io.ktor.resources.*
 import kotlinx.serialization.Serializable
+import org.litote.kmongo.MongoOperator
 
 @Serializable
 @Resource("/class/add")

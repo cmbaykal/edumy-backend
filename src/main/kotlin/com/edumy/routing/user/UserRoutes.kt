@@ -155,14 +155,15 @@ fun Application.userRoutes(database: CoroutineDatabase) {
                 }
             }
         }
-
-        get<AllUsers> {
-            try {
-                val foundUsers = users.find().toList() as List<User>
-                call.response.status(HttpStatusCode.OK)
-                call.respond(ApiResponse.success(foundUsers))
-            } catch (e: Exception) {
-                call.response.status(HttpStatusCode.BadRequest)
+        authenticate {
+            get<AllUsers> {
+                try {
+                    val foundUsers = users.find().toList() as List<User>
+                    call.response.status(HttpStatusCode.OK)
+                    call.respond(ApiResponse.success(foundUsers))
+                } catch (e: Exception) {
+                    call.response.status(HttpStatusCode.BadRequest)
+                }
             }
         }
     }
